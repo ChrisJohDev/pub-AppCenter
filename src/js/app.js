@@ -4,7 +4,3 @@
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
  */
-
-import app from './app.js'
-// console.log('TODO: Start working on the assignment')
-app.run();
