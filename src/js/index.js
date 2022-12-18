@@ -6,5 +6,5 @@
  */
 
 import app from './app.js'
-// console.log('TODO: Start working on the assignment')
-app.run();
+
+app()
