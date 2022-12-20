@@ -24,16 +24,20 @@ template.innerHTML = `
 
 customElements.define('chat-app',
   /**
-   *
+   * 
    */
   class extends HTMLElement {
     /**
-     *
+     * Class contructor function.
      */
     constructor () {
       super()
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
+      
+    }
+
+    connectedCallback() {
       this.setAttribute('style', 'width: max-content;')
     }
   }

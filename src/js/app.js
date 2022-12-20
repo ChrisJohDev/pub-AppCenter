@@ -51,11 +51,17 @@ const games = [
  */
 const startNewApp = (data) => {
   console.log(`startNewApp data: ${JSON.stringify(data)}`)
-  const importedApp = import(data.url)
-  console.log(`data.tag: ${data.tag}`)
-  const app = document.createElement(data.tag)
-  dragElement(app, document.querySelector('#appArea'))
-  document.querySelector('#appArea').appendChild(app)
+  try {
+    import(data.url)
+    console.log(`data.tag: ${data.tag}`)
+    const app = document.createElement(data.tag)
+
+    console.log(`app: ${app}`)
+    dragElement(app, document.querySelector('#appArea'))
+    document.querySelector('#appArea').appendChild(app)
+  } catch (err) {
+    console.error(`startNewApp: ${err}`)
+  }
 }
 
 /**
