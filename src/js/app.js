@@ -7,6 +7,7 @@
 import './components/layout'
 import './components/footer'
 import './components/appBay'
+import { dragElement } from './modules/moveElement2.js'
 
 const games = [
   {
@@ -49,18 +50,19 @@ const games = [
  * @param data
  */
 const startNewApp = (data) => {
-  console.log`startNewApp data: ${data}`
-  import(data.url)
+  console.log(`startNewApp data: ${JSON.stringify(data)}`)
+  const importedApp = import(data.url)
+  console.log(`data.tag: ${data.tag}`)
   const app = document.createElement(data.tag)
-  document.querySelector('main').appendChild(app)
+  dragElement(app, document.querySelector('#appArea'))
+  document.querySelector('#appArea').appendChild(app)
 }
 
 /**
  *
  */
 const addAppBay = () => {
-  console.log(`addAppBay`)
-  const main = document.querySelector('main')
+  const appBay = document.querySelector('#bay')
   const bay = document.createElement('app-bay')
   console.log(`addAppBay bay: ${bay}`)
   bay.data = [...games]
@@ -68,7 +70,7 @@ const addAppBay = () => {
     startNewApp(ev.detail)
   })
 
-  main.appendChild(bay)
+  appBay.appendChild(bay)
 }
 
 /**

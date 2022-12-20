@@ -20,7 +20,7 @@ main{
   height: 100%;
   border: rgb(79, 79, 79) 4px inset;
 }
-
-.dd{
-  grid-template-columns: ;
+#appArea{
+  height: 100%;
 }
+
