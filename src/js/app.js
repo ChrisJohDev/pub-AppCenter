@@ -7,7 +7,7 @@
 import './components/layout'
 import './components/footer'
 import './components/appBay'
-import { dragElement } from './modules/moveElement2.js'
+import { dragElement } from './modules/moveElement.js'
 
 const games = [
   {

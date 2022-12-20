@@ -40,7 +40,7 @@ customElements.define('app-bay',
           const runApp = new CustomEvent('run-app', { detail: game })
           this.dispatchEvent(runApp)
         })
-        div.setAttribute('style', 'width:max-content;padding:1rem 0.5rem;')
+        div.setAttribute('style', 'width:max-content;padding:1rem 0.5rem;box-sizing:border-box;')
 
         const img = document.createElement('img')
         img.setAttribute('src', game.image.url)

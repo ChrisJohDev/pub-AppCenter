@@ -11,12 +11,14 @@ template.innerHTML = `
   *{
     margin: 0;
   }
-  #chatWrapper{
+  /* #chatWrapper{
     width: max-content;
     height: min-content;
-  }
+    color: white;
+  } */
   :host{
     position: absolute;
+    color: white;
   }
 </style>
   <div><h1>Memory App</h1></div>

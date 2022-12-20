@@ -1,145 +1,102 @@
-/**
- * Class that adds movement functionality to elements.
- *
- * Code adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
- * Ideas from https://web.dev/drag-and-drop/
- *
- * @author Chris Johannesson <chris@chrisjohannesson.com>
- * @version 1.0.0
- */
+// Code adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
+// Ideas from https://web.dev/drag-and-drop/
 
 /**
  *
+ * @param elmnt
  */
-export class moveElement {
-  #posX
-  #posY
-  #posX_start
-  #posY_start
-  #parent
-  #obj
-  #element
-  /**
-   *
-   * @param element
-   */
-  constructor (element) {
-    console.log(`moveElement element: ${JSON.stringify(element)}`)
-    this.#element = element
-    this.#dragElement(element)
-    this.#parent = element.parentNode
-    this.#posX = 0
-    this.#posY = 0
-    this.#posX_start = 0
-    this.#posY_start = 0
-    this.#obj = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    }
-    this.#element.onmousedown = this.#dragMouseDown
+export const dragElement = (elmnt, parentNode) => {
+  let posX = 0; let posY = 0; let posXStart = 0; let posYStart = 0
+  const parent = parentNode
+  const obj = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
   }
 
-  /**
-   *
-   * @param elmnt
-   */
-  #dragElement (elmnt) {
-    this.#posX = 0
-    this.#posY = 0
-    this.#posX_start = 0
-    this.#posY_start = 0
-    this.#obj = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
-    }
-console.log(`dragElement posX_start: ${this.#posX_start}`)
-    // let boundry
-    // if (document.getElementById(elmnt.id + "header")) {
-    //   /* if present, the header is where you move the DIV from:*/
-    //   document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-    // } else {
-    //   /* otherwise, move the DIV from anywhere inside the DIV:*/
-    //   elmnt.onmousedown = dragMouseDown;
-    // }
-     // Maybe not a good idea, continue testing.
-  }
+  // let boundry
+  // if (document.getElementById(elmnt.id + "header")) {
+  //   /* if present, the header is where you move the DIV from:*/
+  //   document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  // } else {
+  //   /* otherwise, move the DIV from anywhere inside the DIV:*/
+  //   elmnt.onmousedown = dragMouseDown;
+  // }
+  elmnt.onmousedown = dragMouseDown // Maybe not a good idea, continue testing.
 
   /**
    *
    * @param e
    */
-  #dragMouseDown (e) {
+  function dragMouseDown (e) {
     e = e || window.event
     e.preventDefault()
     // get the mouse cursor position at startup:
-    console.log(`dragMouseDown e.clientX: ${this.#posX_start}`)
-    this.#posX_start = e.clientX
-    this.#posY_start = e.clientY
+    posXStart = e.clientX
+    posYStart = e.clientY
     //
-    document.onmouseup = this.#closeDragElement
+    document.onmouseup = closeDragElement
     // call a function whenever the cursor moves and the click button is down:
-    document.onmousemove = this.#elementDrag
-    // this.#parent.onmouseout = closeDragElement; // Find a better solution
+    document.onmousemove = elementDrag
+    // parent.onmouseout = closeDragElement; // Find a better solution
   }
 
   /**
    *
    * @param e
    */
-  #elementDrag (e) {
+  function elementDrag (e) {
     e = e || window.event
     e.preventDefault()
 
+    const bay = document.querySelector('#bay')
+
     const boundary = {
-      top: 0,
-      bottom: this.#parent.offsetHeight,
-      left: 0,
-      right: this.#parent.offsetWidth
+      top: parent.offsetTop,
+      bottom: parent.offsetHeight + bay.offsetHeight,
+      left: parent.offsetLeft,
+      right: parent.offsetWidth + parent.offsetLeft
     }
 
-    // console.log(`posY_start: ${posY_start}\nclientY: ${e.clientY}\noffsetTop: ${posY_start - e.clientY}\nelement top: ${elmnt.offsetTop - (posY_start - e.clientY)}`)
+    console.log(`parent boundary:\ntop: ${boundary.top}\nbottom: ${boundary.bottom}\nleft: ${boundary.left}\nright: ${boundary.right}\n\n`)
 
-    // boundry = elmnt.parentNode;
-    // console.log(`boundry: \ntop: ${boundry.offsetTop}\nheight: ${boundry.offsetHeight}\nleft: ${boundry.offsetLeft}\nwidth: ${boundry.offsetWidth}`)
+    console.log(`-- cursor pos.\nxStart: ${posXStart}\nyStart: ${posYStart}`)
     // calculate the new cursor position:
-    this.#posX = this.#posX_start - e.clientX
-    this.#posY = this.#posY_start - e.clientY
-    this.#posX_start = e.clientX
-    this.#posY_start = e.clientY
+    posX = posXStart - e.clientX
+    posY = posYStart - e.clientY
+    posXStart = e.clientX
+    posYStart = e.clientY
 
-    let top = this.#element.offsetTop - this.#posY
-    let left = this.#element.offsetLeft - this.#posX
+    let top = elmnt.offsetTop - posY
+    let left = elmnt.offsetLeft - posX
 
-    this.#obj.top = top
-    this.#obj.bottom = top + this.#element.offsetHeight
-    this.#obj.left = left
-    this.#obj.right = left + this.#element.offsetWidth
+    obj.top = top
+    obj.bottom = top + elmnt.offsetHeight
+    obj.left = left + 1
+    obj.right = left + elmnt.offsetWidth
 
-    if (this.#obj.top < 0) top = 0
-    if (this.#obj.bottom > boundary.bottom) top = boundary.bottom - this.#element.offsetHeight
-    if (this.#obj.left < 0) left = 0
-    if (this.#obj.right > boundary.right) left = boundary.right - this.#element.offsetWidth
+    console.log(`-- object\ntop: ${obj.top}\nbottom: ${obj.bottom}\nleft: ${obj.left}\nright: ${obj.right}`)
+
+    if (obj.top < boundary.top) top = boundary.top
+    if (obj.bottom > boundary.bottom) top = boundary.bottom - elmnt.offsetHeight
+    if (obj.left < boundary.left) left = boundary.left
+    if (obj.right > boundary.right) left = boundary.right - elmnt.offsetWidth
     // set the element's new position:
-    this.#element.style.top = top + 'px'
-    this.#element.style.left = left + 'px'
+    elmnt.style.top = top + 'px'
+    elmnt.style.left = left + 'px'
 
-    console.log(`clientX: ${e.clientX}\noffsetLeft: ${this.#parent.offsetLeft}\noffsetRight: ${this.#parent.offsetWidth + this.#parent.offsetLeft}`)
-    if (e.clientX < this.#parent.offsetLeft || e.clientX > (this.#parent.offsetWidth + this.#parent.offsetLeft)) this.#closeDragElement()
-    if (e.clientY < this.#parent.offsetTop || e.clientY > (this.#parent.offsetHeight + this.#parent.offsetTop)) this.#closeDragElement()
+    // console.log(`clientX: ${e.clientX}\noffsetLeft: ${parent.offsetLeft}\noffsetRight: ${parent.offsetWidth + parent.offsetLeft}`)
+    if (posXStart < boundary.left || posXStart > boundary.right) closeDragElement()
+    if (e.clientY < boundary.top || e.clientY > boundary.bottom) closeDragElement()
   }
 
   /**
    *
    */
-  #closeDragElement () {
+  function closeDragElement () {
     /* stop moving when mouse button is released: */
     document.onmouseup = null
     document.onmousemove = null
   }
 }
-
-// Make the DIV element draggable:
