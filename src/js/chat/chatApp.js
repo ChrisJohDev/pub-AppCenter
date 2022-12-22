@@ -17,6 +17,7 @@ template.innerHTML = `
   }
   :host{
     position: absolute;
+    z-index: 1;
   }
 </style>
   <div><h1>Chat App</h1></div>
@@ -34,7 +35,14 @@ customElements.define('chat-app',
       super()
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
-      
+      this.addEventListener('mousedown', () => {
+        this.style.zIndex = 100
+        const selected = new CustomEvent('new-select')
+        this.dispatchEvent(selected)
+      })
+      this.addEventListener('blur', () => {
+        this.style.zIndex = 1
+      })
     }
 
     connectedCallback() {

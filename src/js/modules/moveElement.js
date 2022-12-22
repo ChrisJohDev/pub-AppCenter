@@ -1,11 +1,15 @@
 // Code adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
-// Ideas from https://web.dev/drag-and-drop/
+// and ideas from https://web.dev/drag-and-drop/
 
 /**
+ * Main function setting up elmnt to be movable within the boundaries
+ * of the parentNode.
  *
- * @param elmnt
+ * @param {HTMLElement} elmnt - the element to make draggable.
+ * @param {HTMLElement} parentNode - the element that the elmnt can move within.
  */
 export const dragElement = (elmnt, parentNode) => {
+  if (!elmnt || !parentNode) throw new Error('Missing the element or the parent element, in dragElement,')
   let posX = 0; let posY = 0; let posXStart = 0; let posYStart = 0
   const parent = parentNode
   const obj = {
@@ -15,40 +19,37 @@ export const dragElement = (elmnt, parentNode) => {
     left: 0
   }
 
-  // let boundry
-  // if (document.getElementById(elmnt.id + "header")) {
-  //   /* if present, the header is where you move the DIV from:*/
-  //   document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  // } else {
-  //   /* otherwise, move the DIV from anywhere inside the DIV:*/
-  //   elmnt.onmousedown = dragMouseDown;
-  // }
-  elmnt.onmousedown = dragMouseDown // Maybe not a good idea, continue testing.
+  elmnt.onmousedown = dragMouseDown
 
   /**
+   * Responds to the mouse down event.
+   * Attaches closeDragElement function to the mouseUp event and
+   * attaches the elementDrag function to the mouseMove event.
    *
-   * @param e
+   * @param {Event} ev - event object.
    */
-  function dragMouseDown (e) {
-    e = e || window.event
-    e.preventDefault()
+  function dragMouseDown (ev) {
+    if (!ev) throw new Error('Missing event object in dragMouseDown.')
+    ev.preventDefault()
     // get the mouse cursor position at startup:
-    posXStart = e.clientX
-    posYStart = e.clientY
-    //
+    posXStart = ev.clientX
+    posYStart = ev.clientY
+
+    // adds eventhandler for mouseUp event
     document.onmouseup = closeDragElement
-    // call a function whenever the cursor moves and the click button is down:
+    // adds an eventhandler to the mouseMove event when the mouse button is down
     document.onmousemove = elementDrag
-    // parent.onmouseout = closeDragElement; // Find a better solution
   }
 
   /**
+   * The function that controlls the movement of the elmnt.
+   * It sets the boundaries for its movement based on the parent element.
    *
-   * @param e
+   * @param {Event} ev - event object.
    */
-  function elementDrag (e) {
-    e = e || window.event
-    e.preventDefault()
+  function elementDrag (ev) {
+    if (!ev) throw new Error('Missing event object in elementDrag.')
+    ev.preventDefault()
 
     const bay = document.querySelector('#bay')
 
@@ -59,44 +60,43 @@ export const dragElement = (elmnt, parentNode) => {
       right: parent.offsetWidth + parent.offsetLeft
     }
 
-    console.log(`parent boundary:\ntop: ${boundary.top}\nbottom: ${boundary.bottom}\nleft: ${boundary.left}\nright: ${boundary.right}\n\n`)
-
-    console.log(`-- cursor pos.\nxStart: ${posXStart}\nyStart: ${posYStart}`)
-    // calculate the new cursor position:
-    posX = posXStart - e.clientX
-    posY = posYStart - e.clientY
-    posXStart = e.clientX
-    posYStart = e.clientY
+    // Calculate the new cursor position
+    posX = posXStart - ev.clientX
+    posY = posYStart - ev.clientY
+    posXStart = ev.clientX
+    posYStart = ev.clientY
 
     let top = elmnt.offsetTop - posY
     let left = elmnt.offsetLeft - posX
 
+    // Set the position of the element's 4 sides.
     obj.top = top
     obj.bottom = top + elmnt.offsetHeight
     obj.left = left + 1
     obj.right = left + elmnt.offsetWidth
 
-    console.log(`-- object\ntop: ${obj.top}\nbottom: ${obj.bottom}\nleft: ${obj.left}\nright: ${obj.right}`)
-
+    // Set up the boundaries for the element's movement.
     if (obj.top < boundary.top) top = boundary.top
     if (obj.bottom > boundary.bottom) top = boundary.bottom - elmnt.offsetHeight
     if (obj.left < boundary.left) left = boundary.left
     if (obj.right > boundary.right) left = boundary.right - elmnt.offsetWidth
-    // set the element's new position:
+
+    // Set the element's new position
     elmnt.style.top = top + 'px'
     elmnt.style.left = left + 'px'
 
-    // console.log(`clientX: ${e.clientX}\noffsetLeft: ${parent.offsetLeft}\noffsetRight: ${parent.offsetWidth + parent.offsetLeft}`)
+    // Set up the boundaries for when to stop tracking movements.
     if (posXStart < boundary.left || posXStart > boundary.right) closeDragElement()
-    if (e.clientY < boundary.top || e.clientY > boundary.bottom) closeDragElement()
+    if (ev.clientY < boundary.top || ev.clientY > boundary.bottom) closeDragElement()
   }
 
   /**
-   *
+   * Function tha will stop movements of the element.
+   * It resets the eventhandlers for mouseUp and mouseMove events.
    */
   function closeDragElement () {
-    /* stop moving when mouse button is released: */
-    document.onmouseup = null
-    document.onmousemove = null
+    /* Stop movments when the mouse button is released */
+    document.onmouseup = null // removes handler for mouseUp event
+    document.onmousemove = null // removes handler for mouseMove event
   }
 }

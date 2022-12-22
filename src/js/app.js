@@ -45,9 +45,23 @@ const games = [
 
 ]
 
+let tabIndexCounter = 1
+
+const newSelectedElement = (ev) => {
+  const apps = document.querySelector('#appArea').childNodes
+// console.log(`newSelectedElement apps.length: ${apps.length}`)
+  apps.forEach(app => {
+    // console.log(`ev: ${ev.target.getAttribute('tabindex')}`)
+    if (ev.target.getAttribute('tabindex') !== app.getAttribute('tabindex')) {
+      app.style.zIndex = app.getAttribute('tabindex')
+    }
+  })
+}
+
 /**
+ * Launches a new app and appends it to the content in #appArea.
  *
- * @param data
+ * @param {object} data - object containing name, url, tag, and image.url.
  */
 const startNewApp = (data) => {
   console.log(`startNewApp data: ${JSON.stringify(data)}`)
@@ -55,9 +69,11 @@ const startNewApp = (data) => {
     import(data.url)
     console.log(`data.tag: ${data.tag}`)
     const app = document.createElement(data.tag)
-
-    console.log(`app: ${app}`)
-    dragElement(app, document.querySelector('#appArea'))
+    app.setAttribute('tabindex', tabIndexCounter++)
+    app.addEventListener('new-select', (ev) => {
+      newSelectedElement(ev)
+    })
+    dragElement(app, document.querySelector('#appArea')) // Add movement capability for app
     document.querySelector('#appArea').appendChild(app)
   } catch (err) {
     console.error(`startNewApp: ${err}`)
@@ -65,7 +81,7 @@ const startNewApp = (data) => {
 }
 
 /**
- *
+ * Adds the application bay from where the applications can be launched.
  */
 const addAppBay = () => {
   const appBay = document.querySelector('#bay')
@@ -80,7 +96,8 @@ const addAppBay = () => {
 }
 
 /**
- * The app.
+ * The application.
+ * Starting point for the application.
  */
 const app = () => {
   const body = document.querySelector('body')

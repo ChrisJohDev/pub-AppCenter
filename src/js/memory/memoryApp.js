@@ -19,6 +19,7 @@ template.innerHTML = `
   :host{
     position: absolute;
     color: white;
+    z-index: 1;
   }
 </style>
   <div><h1>Memory App</h1></div>
@@ -36,10 +37,19 @@ customElements.define('memory-app',
       super()
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
+      this.addEventListener('mousedown', () => {
+        this.style.zIndex = 100
+        const selected = new CustomEvent('new-select')
+        this.dispatchEvent(selected)
+      })
+      this.addEventListener('blur', () => {
+        this.style.zIndex = 1
+      })
     }
 
     connectedCallback() {
       this.setAttribute('style', 'width: max-content;')
+      
     }
   }
 )
