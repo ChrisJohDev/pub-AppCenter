@@ -15,7 +15,7 @@ const games = [
     url: './chat',
     tag: 'chat-app',
     image: {
-      url: './chat/images/game.png'
+      url: './js/chat/images/game.png'
     }
   },
   {
@@ -47,9 +47,13 @@ const games = [
 
 let tabIndexCounter = 1
 
+/**
+ *
+ * @param ev
+ */
 const newSelectedElement = (ev) => {
   const apps = document.querySelector('#appArea').childNodes
-// console.log(`newSelectedElement apps.length: ${apps.length}`)
+  // console.log(`newSelectedElement apps.length: ${apps.length}`)
   apps.forEach(app => {
     // console.log(`ev: ${ev.target.getAttribute('tabindex')}`)
     if (ev.target.getAttribute('tabindex') !== app.getAttribute('tabindex')) {
@@ -68,6 +72,7 @@ const startNewApp = (data) => {
   try {
     import(data.url)
     console.log(`data.tag: ${data.tag}`)
+    /* @vite-ignore */
     const app = document.createElement(data.tag)
     app.setAttribute('tabindex', tabIndexCounter++)
     app.addEventListener('new-select', (ev) => {
@@ -86,13 +91,31 @@ const startNewApp = (data) => {
 const addAppBay = () => {
   const appBay = document.querySelector('#bay')
   const bay = document.createElement('app-bay')
-  console.log(`addAppBay bay: ${bay}`)
+  // console.log(`addAppBay bay: ${bay}`)
   bay.data = [...games]
   bay.addEventListener('run-app', (ev) => {
     startNewApp(ev.detail)
   })
+  bay.addEventListener('bay-loaded', () => {
+    console.log('bay-loaded event fired.')
+    sizeAppArea()
+  })
 
   appBay.appendChild(bay)
+}
+
+/**
+ *
+ */
+const sizeAppArea = () => {
+  
+  const appArea = parent.querySelector('#appArea')
+  const parent = appArea.offsetParent // document.querySelector('main')
+  const bayHeight = parent.querySelector('#bay').offsetHeight
+  const parentHeight = parent.offsetHeight
+  console.log(`size:\nbayHeight: ${bayHeight}\nparentHeight: ${parentHeight}\nappArea.height: ${appArea.offsetHeight}`)
+  appArea.style.height = (parentHeight - bayHeight) + 'px'
+  console.log(`new size:\nbayHeight: ${bayHeight}\nparentHeight: ${parentHeight}\nappArea.height: ${appArea.offsetHeight}`)
 }
 
 /**

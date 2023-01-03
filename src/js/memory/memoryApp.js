@@ -5,6 +5,13 @@
  * @version 1.0.0
  */
 
+
+/**
+ * NOTE: In general, you should use the DOMContentLoaded event when you need to run 
+ * code that accesses the DOM as soon as possible, and use the load event when you 
+ * need to run code that depends on all resources being fully loaded.
+ */
+
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -30,12 +37,15 @@ customElements.define('memory-app',
    * 
    */
   class extends HTMLElement {
+    #shadow
     /**
      * Class contructor function.
      */
     constructor() {
       super()
-      this.attachShadow({ mode: 'open' })
+      this.#shadow = this.attachShadow({ mode: 'open' }).addEventListener('load', () => {
+        this.dispatchEvent(new CustomEvent('app-loaded', { detail: { name: 'memoryApp' } }))
+      })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.addEventListener('mousedown', () => {
         this.style.zIndex = 100

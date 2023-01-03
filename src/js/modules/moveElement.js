@@ -1,9 +1,19 @@
+/**
+ * The main script file of the application.
+ *
+ * @author Chris Johannesson <chris@chrisjohannesson.com>
+ * @version 1.0.0
+ */
+
 // Code adapted from https://www.w3schools.com/howto/howto_js_draggable.asp
 // and ideas from https://web.dev/drag-and-drop/
 
 /**
  * Main function setting up elmnt to be movable within the boundaries
  * of the parentNode.
+ * NOTE: This is not a generic method but rather specialized to the
+ * app in which it is included in. Hence, it knows the layout and
+ * ids used in the application.
  *
  * @param {HTMLElement} elmnt - the element to make draggable.
  * @param {HTMLElement} parentNode - the element that the elmnt can move within.
@@ -51,25 +61,23 @@ export const dragElement = (elmnt, parentNode) => {
     if (!ev) throw new Error('Missing event object in elementDrag.')
     ev.preventDefault()
 
-    const bay = document.querySelector('#bay')
-
     const boundary = {
       top: parent.offsetTop,
-      bottom: parent.offsetHeight + bay.offsetHeight,
+      bottom: parent.offsetHeight + parent.offsetTop,
       left: parent.offsetLeft,
       right: parent.offsetWidth + parent.offsetLeft
     }
 
     // Calculate the new cursor position
-    posX = posXStart - ev.clientX
-    posY = posYStart - ev.clientY
+    posX = ev.clientX - posXStart // relative movement x-axis
+    posY = ev.clientY - posYStart // relative movement y-axis
     posXStart = ev.clientX
     posYStart = ev.clientY
 
-    let top = elmnt.offsetTop - posY
-    let left = elmnt.offsetLeft - posX
+    let top = elmnt.offsetTop + posY
+    let left = elmnt.offsetLeft + posX
 
-    // Set the position of the element's 4 sides.
+    // Set the current position of the element's 4 sides.
     obj.top = top
     obj.bottom = top + elmnt.offsetHeight
     obj.left = left + 1

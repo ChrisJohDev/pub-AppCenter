@@ -2,10 +2,20 @@
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
+  *{
+    box-sizing: border-box;
+  }
+  :host{
+    display: block;
+    height:100%;
+  }
   .bay-wrapper{
-    height: clamp(20px, 5%, 40px);
+    height: 100%;
     border-bottom: rgb(79, 79, 79) 4px inset;
     display: grid;
+    gap: 0.5rem;
+    padding-left: 0.5rem;
+    align-items: center;
   }
 </style>
   <div class='bay-wrapper'></div>
@@ -16,18 +26,17 @@ customElements.define('app-bay',
    *
    */
   class extends HTMLElement {
-    #shadow
     /**
-     *
+     * Class constructor function.
      */
     constructor () {
       super()
-      this.#shadow = this.attachShadow({ mode: 'open' })
-      this.#shadow.appendChild(template.content.cloneNode(true))
+      this.attachShadow({ mode: 'open' })
+      this.shadowRoot.appendChild(template.content.cloneNode(true))
     }
 
     /**
-     *
+     * ConnectedCallback function.
      */
     connectedCallback () {
       console.log(`app-bay data: ${this.data}`)
@@ -40,7 +49,7 @@ customElements.define('app-bay',
           const runApp = new CustomEvent('run-app', { detail: game })
           this.dispatchEvent(runApp)
         })
-        div.setAttribute('style', 'width:max-content;padding:1rem 0.5rem;box-sizing:border-box;')
+        div.setAttribute('style', 'width:max-content;box-sizing:border-box;')
 
         const img = document.createElement('img')
         img.setAttribute('src', game.image.url)
@@ -57,6 +66,6 @@ customElements.define('app-bay',
 //   name: 'Chat',
 //   url: './chat',
 //   image: {
-//     url: './chat/images/game.png'
+//     url: './js/chat/images/game.png'
 //   }
 // }
