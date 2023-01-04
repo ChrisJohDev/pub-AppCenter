@@ -7,6 +7,7 @@
 import './components/layout'
 import './components/footer'
 import './components/appBay'
+import './components/appContainer'
 import { dragElement } from './modules/moveElement.js'
 
 const games = [
@@ -73,13 +74,15 @@ const startNewApp = (data) => {
     import(data.url)
     console.log(`data.tag: ${data.tag}`)
     /* @vite-ignore */
+    const container = document.createElement('app-container')
     const app = document.createElement(data.tag)
-    app.setAttribute('tabindex', tabIndexCounter++)
-    app.addEventListener('new-select', (ev) => {
+    container.setAttribute('tabindex', tabIndexCounter++)
+    container.addEventListener('new-select', (ev) => {
       newSelectedElement(ev)
     })
-    dragElement(app, document.querySelector('#appArea')) // Add movement capability for app
-    document.querySelector('#appArea').appendChild(app)
+    dragElement(container, document.querySelector('#appArea')) // Add movement capability for app
+    container.shadowRoot.querySelector('.wrapper > .body').appendChild(app)
+    document.querySelector('#appArea').appendChild(container)
   } catch (err) {
     console.error(`startNewApp: ${err}`)
   }
@@ -108,9 +111,8 @@ const addAppBay = () => {
  *
  */
 const sizeAppArea = () => {
-  
+  const parent = document.querySelector('main')
   const appArea = parent.querySelector('#appArea')
-  const parent = appArea.offsetParent // document.querySelector('main')
   const bayHeight = parent.querySelector('#bay').offsetHeight
   const parentHeight = parent.offsetHeight
   console.log(`size:\nbayHeight: ${bayHeight}\nparentHeight: ${parentHeight}\nappArea.height: ${appArea.offsetHeight}`)

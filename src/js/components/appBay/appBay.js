@@ -1,3 +1,9 @@
+/**
+ * The appBay custom element.
+ *
+ * @author Chris Johannesson <chris@chrisjohannesson.com>
+ * @version 1.1.0
+ */
 
 const template = document.createElement('template')
 template.innerHTML = `
