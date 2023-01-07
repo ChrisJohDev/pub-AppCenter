@@ -45,13 +45,13 @@ customElements.define('app-bay',
      * ConnectedCallback function.
      */
     connectedCallback () {
-      console.log(`app-bay data: ${this.data}`)
+      // console.log(`app-bay data: ${this.data}`)
       const wrapper = this.shadowRoot.querySelector('.bay-wrapper')
       wrapper.style.gridTemplateColumns = `repeat(${this.data.length}, max-content)`
       this.data.forEach(game => {
         const div = document.createElement('div')
         div.addEventListener('click', (ev) => {
-          console.log(`event target: ${JSON.stringify(game)}`)
+          // console.log(`event target: ${JSON.stringify(game)}`)
           const runApp = new CustomEvent('run-app', { detail: game })
           this.dispatchEvent(runApp)
         })

@@ -5,61 +5,49 @@
  * @version 1.0.0
  */
 
-
-/**
- * NOTE: In general, you should use the DOMContentLoaded event when you need to run 
- * code that accesses the DOM as soon as possible, and use the load event when you 
- * need to run code that depends on all resources being fully loaded.
- */
+import './components/welcome.js'
+import './components/gameBoard.js'
+import './components/results.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
   *{
+    box-sizing: border-box;
     margin: 0;
   }
-  /* #chatWrapper{
-    width: max-content;
-    height: min-content;
-    color: white;
-  } */
   :host{
-    position: absolute;
-    color: white;
-    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 </style>
-  <div><h1>Memory App</h1></div>
+<div id="root"></div>
 `
 
 customElements.define('memory-app',
   /**
-   * 
+   *
    */
   class extends HTMLElement {
     #shadow
+    #welcomePage
     /**
      * Class contructor function.
      */
-    constructor() {
+    constructor () {
       super()
-      this.#shadow = this.attachShadow({ mode: 'open' }).addEventListener('load', () => {
-        this.dispatchEvent(new CustomEvent('app-loaded', { detail: { name: 'memoryApp' } }))
-      })
+      this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
-      this.addEventListener('mousedown', () => {
-        this.style.zIndex = 100
-        const selected = new CustomEvent('new-select')
-        this.dispatchEvent(selected)
-      })
-      this.addEventListener('blur', () => {
-        this.style.zIndex = 1
-      })
     }
 
-    connectedCallback() {
-      this.setAttribute('style', 'width: max-content;')
-      
+    /**
+     * Connecte callback function.
+     */
+    connectedCallback () {
+      // this.setAttribute('style', 'width: max-content;')
+      const welcome = document.createElement('welcome-page')
+      this.shadowRoot.querySelector('#root').replaceChildren(welcome)
     }
   }
 )

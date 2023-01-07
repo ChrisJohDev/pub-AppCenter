@@ -18,10 +18,18 @@
  * @param {HTMLElement} elmnt - the element to make draggable.
  * @param {HTMLElement} parentNode - the element that the elmnt can move within.
  */
-export const dragElement = (elmnt, parentNode) => {
+const moveElement = (elmnt, parentNode) => {
   if (!elmnt || !parentNode) throw new Error('Missing the element or the parent element, in dragElement,')
   let posX = 0; let posY = 0; let posXStart = 0; let posYStart = 0
   const parent = parentNode
+  const header = elmnt.shadowRoot.querySelector('header') // The dragable area
+  const boundary = {
+    top: parent.offsetTop,
+    bottom: parent.offsetHeight + parent.offsetTop,
+    left: parent.offsetLeft,
+    right: parent.offsetWidth + parent.offsetLeft
+  }
+
   const obj = {
     top: 0,
     right: 0,
@@ -29,7 +37,122 @@ export const dragElement = (elmnt, parentNode) => {
     left: 0
   }
 
-  elmnt.onmousedown = dragMouseDown
+  /**
+   *
+   * @param direction
+   */
+  const testMax = (direction) => {
+    let counter = 0; let test
+    if (direction === 'vertical') {
+      do {
+        test = testPosition({
+          height: elmnt.offsetHeight,
+          width: 0,
+          offsetTop: parent.offsetTop + 10 * counter,
+          offsetWidth: 0
+        })
+        counter++
+      } while (test.ok)
+    } else {
+      do {
+        test = testPosition({
+          height: 0,
+          width: elmnt.offsetWidth,
+          offsetTop: 0,
+          offsetLeft: parent.offsetLeft + 10 * (counter + 1)
+        })
+        counter++
+      } while (test.ok && counter < 1000)
+    }
+
+    // console.log(`testMax return: ${counter}`)
+    return counter
+  }
+
+  /**
+   *
+   * @param data
+   */
+  const testPosition = (data) => {
+    let ok = false; let rightOutside = false; let bottomOutside = false
+
+    const bottom = data.offsetTop + data.height
+    const right = data.offsetLeft + data.width
+
+    if (right > boundary.right) rightOutside = true
+    if (bottom > boundary.bottom) bottomOutside = true
+    if (!(bottomOutside || rightOutside)) ok = true
+
+    return { ok, rightOutside, bottomOutside }
+  }
+
+  /**
+   *
+   * @param direction
+   * @param parentOffset
+   * @param openWindows
+   * @param data
+   */
+  const getCorrection = (direction, parentOffset, openWindows, data) => {
+    let test, result
+    const maxX = testMax('horrizontal')
+    const maxY = testMax('vertical')
+    const maxXcount = Math.floor()
+
+    for (let i = 0; i < openWindows + 1; i++) {
+      test = parentOffset + 10 * (openWindows - i)
+      if (direction === 'bottom') {
+        data.offsetTop = test
+      } else {
+        data.offsetLeft = test
+      }
+      result = testPosition(data)
+      console.log(`result: ${result}\ntest: ${test}\nopenWindows: ${openWindows}\ni: ${i}`)
+      if (result.ok) return parentOffset + 10 * i
+    }
+  }
+
+  /**
+   *
+   */
+  const initialPosition = () => {
+    const numbOpenApps = parent.childNodes.length
+    const offsetPixelsTop = 10 * numbOpenApps
+    const offsetPixelsLeft = 10 * numbOpenApps
+
+    const height = elmnt.offsetHeight
+    const width = elmnt.offsetWidth
+    let offsetTop = parent.offsetTop + offsetPixelsTop
+    let offsetLeft = parent.offsetLeft + offsetPixelsLeft
+    // const position = testPosition({ height, width, offsetTop, offsetLeft })
+    const maxX = testMax('horrizontal')
+    const maxY = testMax('vertical')
+    const maxXcount = Math.floor(numbOpenApps / maxX)
+    const maxYcount = Math.floor(numbOpenApps / maxY)
+    
+    
+    offsetTop = parent.offsetTop + 10 * (numbOpenApps - maxYcount * maxY)
+    offsetLeft = parent.offsetLeft + 10 * numbOpenApps
+
+    // We will have to re-write the whole initial position functionality since
+    // apps are of different size so we cannot depend on number of opened apps.
+    // Need to adjust this for Y-axis too it's not perfect yet.
+    if (maxXcount > 0) {
+      offsetLeft = parent.offsetLeft + 10 * (numbOpenApps - maxXcount * maxX)
+      // Reset the Y-axis and start increment numbers based on numbOpenApps from here.
+    }
+    // console.log(`\n*** initialPosition openApps: ${numbOpenApps}\nmaxX: ${maxX}\nmaxY: ${maxY}\nmaxXcount: ${maxXcount}\nmaxYcount: ${maxYcount}`)
+    // console.log(`\n*** \noffsetLeft: ${offsetLeft}\noffsetTop: ${offsetTop}`)
+
+    elmnt.style.top = offsetTop + 'px'
+    elmnt.style.left = offsetLeft + 'px'
+  }
+
+  // Place the elmnt.
+  initialPosition()
+
+  // Adds the dragability to the header portion only.
+  header.onmousedown = dragMouseDown
 
   /**
    * Responds to the mouse down event.
@@ -60,13 +183,6 @@ export const dragElement = (elmnt, parentNode) => {
   function elementDrag (ev) {
     if (!ev) throw new Error('Missing event object in elementDrag.')
     ev.preventDefault()
-
-    const boundary = {
-      top: parent.offsetTop,
-      bottom: parent.offsetHeight + parent.offsetTop,
-      left: parent.offsetLeft,
-      right: parent.offsetWidth + parent.offsetLeft
-    }
 
     // Calculate the new cursor position
     posX = ev.clientX - posXStart // relative movement x-axis
@@ -108,3 +224,5 @@ export const dragElement = (elmnt, parentNode) => {
     document.onmousemove = null // removes handler for mouseMove event
   }
 }
+
+export { moveElement }
