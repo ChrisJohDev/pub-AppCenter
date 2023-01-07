@@ -11,12 +11,13 @@ template.innerHTML = `
     :host{
       position: absolute;
       border: 1px solid grey;
-      background-color: transparent;
+      background-color: inherit;
       /* temp sizing*/
       min-height: 300px;
       max-height: 500px;
-      min-width: 400px;
+      min-width: 350px;
       max-width: 900px;
+      height: 40%;
       z-index: 1;
     }
     header{
@@ -46,7 +47,13 @@ template.innerHTML = `
       border: outset 2px black;
     }
     .wrapper{
-      
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .body{
+      flex: 1;
     }
   </style>
   <div class="wrapper">

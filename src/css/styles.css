@@ -19,6 +19,7 @@ hr{
   color:rgb(65, 64, 64);
 }
 main{
+  background-color: inherit;
   width: 75%;
   height: 100%;
   border: rgb(79, 79, 79) 4px inset;

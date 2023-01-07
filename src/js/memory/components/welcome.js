@@ -57,7 +57,7 @@ template.innerHTML = `
         <input tabindex="1" type="text" id="name" placeholder="Your game name" />
       </div>
       <select tabindex="2">
-        <option disabled selected>-- Select your Game --</option>
+        <option disabled selected value="">-- Select your Game --</option>
         <option value="4">2x2 - 4 cards</option>
         <option value="8">4x2 - 8 cards</option>
         <option value="16">4x4 - 16 cards</option>
@@ -90,23 +90,23 @@ customElements.define('welcome-page',
       const form = this.shadowRoot.querySelector('form')
       form.addEventListener('submit', (ev) => {
         ev.preventDefault()
-        const name = form.querySelector('#name').value
+        let name = form.querySelector('#name').value
         const game = form.querySelector('select').value
+        if (name.match(/[^a-zA-Z]/)) name = null
         if (name && game) {
           const data = { name, game }
           const playGame = new CustomEvent('play-game', { detail: data })
-          console.log('data:', data)
+          // console.log('data:', data)
           this.dispatchEvent(playGame)
-        }
-        else {
+        } else {
           const error = form.querySelector('#nameError')
           error.style.visibility = 'visible'
           if (!name && game) {
-            error.textContent = 'A name is required and < br /> can only contain letter a - z and A - Z'
+            error.innerHTML = 'A name is required and <br /> can only contain letter a - z and A - Z'
           } else if (name && !game) {
             error.textContent = 'You need to select a game from the drop down list.'
           } else {
-            error.textContent = 'A name is required and < br /> you need to select a game'
+            error.innerHTML = 'A name is required and <br> you need to select a game'
           }
         }
       })

@@ -57,7 +57,7 @@ template.innerHTML = `
 </div>
 `
 
-customElements.define('flip-card',
+customElements.define('memory-card',
   /**
    *
    */
