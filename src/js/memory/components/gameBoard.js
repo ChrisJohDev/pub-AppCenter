@@ -34,6 +34,9 @@ customElements.define('game-board',
   class extends HTMLElement {
     #inData
     #board
+    #flipCounter
+    #flippedCards
+    #numberOfAttempts
     /**
      *
      */
@@ -44,6 +47,9 @@ customElements.define('game-board',
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.inData = {}
       this.#board = {}
+      this.#flipCounter = 0
+      this.#flippedCards = []
+      this.#numberOfAttempts = 0
     }
 
     /**
@@ -70,6 +76,48 @@ customElements.define('game-board',
       }
     }
 
+    #lockAllCards() {
+      const boardContent = this.shadowRoot.querySelector('#board-content')
+      const cards = boardContent.childNodes
+
+      cards.forEach(card => {
+        card.lockCard()
+      })
+    }
+
+    #unlockAllCards() {
+      const boardContent = this.shadowRoot.querySelector('#board-content')
+      const cards = boardContent.childNodes
+
+      cards.forEach(card => {
+        card.unlockCard()
+      })
+    }
+
+    #cardFlip(data) {
+      this.#flipCounter++
+      const cardId = data.detail.cardId
+      const pairId = data.detail.pairId
+      const card = this.shadowRoot.querySelector(`#${cardId}`)
+      this.#flippedCards.push(card)
+
+      console.log('card:', card.data.pair)
+
+      if (this.#flipCounter === 2) {
+        this.#lockAllCards()
+        this.#numberOfAttempts++
+
+        if (this.#flippedCards) { }
+      }
+
+      // console.log('cardFlip:', data)
+      // const id = data.detail.cardId
+      // const card = this.shadowRoot.querySelector(`#${id}`)
+      // setTimeout(() => {
+      //   card.flipCard()
+      // }, 2000)
+    }
+
     /**
      *
      */
@@ -94,6 +142,14 @@ customElements.define('game-board',
         }
         card1.data = data
         card2.data = data
+        card1.setAttribute('id', `cardId-${i}-1`)
+        card2.setAttribute('id', `cardId-${i}-2`)
+        card1.addEventListener('card-flip', (ev) => {
+          this.#cardFlip(ev)
+        })
+        card2.addEventListener('card-flip', (ev) => {
+          this.#cardFlip(ev)
+        })
         pile.push(card1)
         pile.push(card2)
       }

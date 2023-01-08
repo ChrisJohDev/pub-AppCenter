@@ -64,6 +64,8 @@ customElements.define('memory-card',
   class extends HTMLElement {
     #height
     #width
+    #pairId
+    #locked
 
     /**
      *
@@ -76,18 +78,23 @@ customElements.define('memory-card',
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.#height = height
       this.#width = width
+      this.#locked = false
     }
 
     /**
      *
      */
     connectedCallback () {
-      const { imgFront, imgBack } = this.data
+      const { imgFront, imgBack, pair } = this.data
       const container = this.shadowRoot.querySelector('.container')
       this.shadowRoot.querySelector('#imgFront').setAttribute('src', imgFront)
       this.shadowRoot.querySelector('#imgBack').setAttribute('src', imgBack)
-      container.addEventListener('click', () => {
-        container.classList.toggle('flipped')
+      this.#pairId = pair
+      container.addEventListener('click', (ev) => {
+        if (!this.#locked) container.classList.toggle('flipped')
+        console.log('pair', this.#pairId)
+        const flip = new CustomEvent('card-flip', { detail: { pairId: this.#pairId, cardId: this.getAttribute('id') } })
+        this.dispatchEvent(flip)
       })
       this.shadowRoot.querySelector('.card-front').style.height = this.#height
       this.shadowRoot.querySelector('.card-front').style.width = this.#width
@@ -95,12 +102,24 @@ customElements.define('memory-card',
       this.shadowRoot.querySelector('.card-back').style.width = this.#width
     }
 
+    lockCard() {
+      this.#locked = true
+    }
+
+    unlockCard() {
+      this.#locked = false
+    }
+
+    hideCard() {
+      this.style.visibility = 'hidden'
+    }
     /**
      *
      * @param ev
      */
-    #flipCard (ev) {
-      ev.preventDefault()
+    flipCard() {
+      const container = this.shadowRoot.querySelector('.container')
+      container.classList.toggle('flipped')
     }
   }
 )

@@ -55,11 +55,12 @@ customElements.define('app-bay',
           const runApp = new CustomEvent('run-app', { detail: game })
           this.dispatchEvent(runApp)
         })
-        div.setAttribute('style', 'width:max-content;box-sizing:border-box;')
+        div.setAttribute('style', 'width:max-content;box-sizing:border-box; cursor:pointer;')
 
         const img = document.createElement('img')
         img.setAttribute('src', game.image.url)
         img.setAttribute('alt', game.name)
+        img.setAttribute('title', game.name)
 
         div.appendChild(img)
         wrapper.appendChild(div)

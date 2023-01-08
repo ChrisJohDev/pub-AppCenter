@@ -24,7 +24,7 @@ const games = [
     url: './exchange',
     tag: 'exchange-app',
     image: {
-      url: './exchange/images/game.png'
+      url: './js/exchange/images/game.jpg'
     }
   },
   {
@@ -32,7 +32,7 @@ const games = [
     url: './memory',
     tag: 'memory-app',
     image: {
-      url: './memory/images/game.png'
+      url: './js/memory/images/game.png'
     }
   },
   {
@@ -40,7 +40,7 @@ const games = [
     url: './sokoban',
     tag: 'sokoban-app',
     image: {
-      url: './sokoban/images/game.png'
+      url: './js/sokoban/images/game.jpg'
     }
   }
 ]
@@ -74,9 +74,8 @@ const startNewApp = (data) => {
   // console.log(`startNewApp data: ${JSON.stringify(data)}`)
   try {
     const parent = document.querySelector('#appArea')
-    import(data.url)
+    import(data.url/* @vite-ignore */) // Dynamic import of applicationsChrome
     // console.log(`data.tag: ${data.tag}`)
-    /* @vite-ignore */
     const container = document.createElement('app-container')
     container.setAttribute('app_name', data.name)
     const app = document.createElement(data.tag)
