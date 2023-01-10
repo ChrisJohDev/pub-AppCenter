@@ -87,14 +87,18 @@ customElements.define('memory-card',
     connectedCallback () {
       const { imgFront, imgBack, pair } = this.data
       const container = this.shadowRoot.querySelector('.container')
+      // container.setAttribute('tabindex', '0')
       this.shadowRoot.querySelector('#imgFront').setAttribute('src', imgFront)
       this.shadowRoot.querySelector('#imgBack').setAttribute('src', imgBack)
       this.#pairId = pair
       container.addEventListener('click', (ev) => {
-        if (!this.#locked) container.classList.toggle('flipped')
-        console.log('pair', this.#pairId)
-        const flip = new CustomEvent('card-flip', { detail: { pairId: this.#pairId, cardId: this.getAttribute('id') } })
-        this.dispatchEvent(flip)
+        if (!this.#locked) {
+          this.#locked = true
+          container.classList.toggle('flipped')
+          // console.log('pair', this.#pairId)
+          const flip = new CustomEvent('card-flip', { detail: { pairId: this.#pairId, cardId: this.getAttribute('id') } })
+          this.dispatchEvent(flip)
+        }
       })
       this.shadowRoot.querySelector('.card-front').style.height = this.#height
       this.shadowRoot.querySelector('.card-front').style.width = this.#width
@@ -102,22 +106,32 @@ customElements.define('memory-card',
       this.shadowRoot.querySelector('.card-back').style.width = this.#width
     }
 
-    lockCard() {
+    /**
+     *
+     */
+    lockCard () {
       this.#locked = true
     }
 
-    unlockCard() {
+    /**
+     *
+     */
+    unlockCard () {
       this.#locked = false
     }
 
-    hideCard() {
+    /**
+     *
+     */
+    hideCard () {
       this.style.visibility = 'hidden'
     }
+
     /**
      *
      * @param ev
      */
-    flipCard() {
+    flipCard () {
       const container = this.shadowRoot.querySelector('.container')
       container.classList.toggle('flipped')
     }

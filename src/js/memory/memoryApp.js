@@ -18,12 +18,30 @@ template.innerHTML = `
     margin: 0;
   }
   :host{
-    display: block;
+    display: flex;
     width: 100%;
     height: 100%;
+    flex: 1;
+    background-color: rgb(50, 50, 50);
   }
-  #root{
-    height: 100%;
+  .game-wrapper{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items: flex-start;
+  }
+  #game{
+    flex: 1;
+    display: flex;
+    width: 100%;
+    z-index:2;
+  }
+  #timer{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 2;
   }
 </style>
 <div class="game-wrapper">
@@ -58,17 +76,20 @@ customElements.define('memory-app',
       this.#loadWelcome()
       this.addEventListener('load-welcome', (ev) => { this.#loadWelcome() })
       this.addEventListener('play-game', (ev) => { this.#loadGame(ev.detail) })
-      this.addEventListener('show-result', (ev) => { this.#resultPage(ev.detail) })
+      this.addEventListener('show-result', (ev) => { this.#loadResultPage(ev.detail) })
     }
 
-    disconnectedCallback() {
+    /**
+     *
+     */
+    disconnectedCallback () {
       this.#stopTimer()
     }
 
     /**
-   * The game timer.
-   */
-    #startTimer() {
+     * The game timer.
+     */
+    #startTimer () {
       this.#timer = document.createElement('timer-counter')
       this.#timer.data = {}
       this.#timer.data.interval = 1 // set interval to 1 sec.
@@ -78,30 +99,107 @@ customElements.define('memory-app',
     }
 
     /**
-   * Stops the current timer.
-   */
-    #stopTimer() {
-      this.#timeScore = this.#timer.stopTimer()
+     * Stops the current timer.
+     */
+    #stopTimer () {
+      return this.#timer.stopTimer()
       // console.log(`questionPage stopTimer score: ${this.#score}`)
     }
 
-    #loadWelcome() {
+    // Idea stolen from chatGPT
+    /**
+     *
+     * @param root0
+     * @param root0.numCards
+     * @param root0.time
+     * @param root0.numAttempts
+     */
+    #calculateScore ({ numCards, time, numAttempts }) {
+      // higher number of cards increases points
+      // longer time decreases points
+      // more attempts decreases points
+      // Determine the Card Value (e.g., you could use a fixed value of 100 points per card)
+      const cardValue = 100
+      const seconds = time / 1000 || 1
+
+      // Calculate the Attempt Penalty (e.g., you could use a coefficient to decrease the score based on the number of attempts)
+      const attemptCoefficient = 0.2 // Decrease score by 20% for every additional attempt
+      const attemptPenalty = numCards > 4 ? numAttempts / Math.sqrt(numCards) : numAttempts
+
+      // Calculate the total score
+      const score = (cardValue * numCards * Math.sqrt(numCards/2)) / (seconds) - attemptPenalty
+      // console.log(`\n*** calculateScore:\ntime: ${time}\nnumCards: ${numCards}\nnumAttempts: ${numAttempts}\nscore: ${score}`)
+
+      // return score with two decimals.
+      return Math.floor(score * 100 + 0.5) / 100
+    }
+
+
+    /**
+     *
+     */
+    #loadWelcome (name = '') {
       const welcome = document.createElement('welcome-page')
-      welcome.addEventListener('play-game', (ev) => { this.#loadGame(ev.detail)})
+      welcome.name = name
+      welcome.addEventListener('play-game', (ev) => { this.#loadGame(ev.detail) })
       this.shadowRoot.querySelector('#game').replaceChildren(welcome)
     }
 
-    #loadGame(data) {
+    /**
+     *
+     * @param data
+     */
+    #loadGame (data) {
       const memory = document.createElement('game-board')
-      console.log('memoryApp loadGame data:', data)
+      // console.log('memoryApp loadGame data:', data)
       memory.setAttribute('data-input', JSON.stringify(data))
-      console.log('memoryApp loadGame memory.data:', memory)
+      memory.addEventListener('game-winner', (ev) => {
+        ev.preventDefault()
+        this.#loadResultPage(ev.detail)
+      })
+      // console.log('memoryApp loadGame memory.data:', memory)
       this.shadowRoot.querySelector('#game').replaceChildren(memory)
       this.#startTimer()
     }
 
-    #resultPage(data) {
-      null
+    /**
+     *
+     * @param data
+     */
+    #loadResultPage (data) {
+      const time = this.#stopTimer()
+      console.log('loadResultPage data:', data)
+
+      const points = this.#calculateScore({ time, numCards: data.cards, numAttempts: data.attempts })
+      const result = document.createElement('memory-result')
+      result.data = { name: data.name, score: points }
+      result.addEventListener('new-game', (ev) => {
+        ev.preventDefault()
+        this.#loadWelcome(ev.detail.name)
+      })
+
+      this.shadowRoot.querySelector('#timer').replaceChildren('')
+      this.shadowRoot.querySelector('#game').replaceChildren(result)
+      console.log('points:', points)
     }
   }
 )
+
+
+// function calculateScore(numCards, time, numAttempts) {
+//   // Determine the Card Value (e.g., you could use a fixed value of 100 points per card)
+//   const cardValue = 100;
+
+//   // Calculate the Time Penalty (e.g., you could use a coefficient to decrease the score based on the time taken and the number of cards)
+//   const timeCoefficient = 0.1; // Decrease score by 10% for every second taken
+//   const timePenalty = time * timeCoefficient * numCards;
+
+//   // Calculate the Attempt Penalty (e.g., you could use a coefficient to decrease the score based on the number of attempts)
+//   const attemptCoefficient = 0.2; // Decrease score by 20% for every additional attempt
+//   const attemptPenalty = numAttempts * attemptCoefficient;
+
+//   // Calculate the total score
+//   const score = (cardValue * numCards) - timePenalty - attemptPenalty;
+
+//   return score;
+// }

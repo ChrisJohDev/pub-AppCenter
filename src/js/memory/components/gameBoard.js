@@ -10,6 +10,9 @@ import './card.js'
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
+    :host{
+      flex: 1;
+    }
     #board-wrapper{
       height: 100%;
       width: 100%;
@@ -33,10 +36,13 @@ customElements.define('game-board',
    */
   class extends HTMLElement {
     #inData
-    #board
+    // #board
     #flipCounter
     #flippedCards
     #numberOfAttempts
+    #correctPairedCards
+    #delayTurnBackCards
+    #delayHideCards
     /**
      *
      */
@@ -46,10 +52,13 @@ customElements.define('game-board',
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.inData = {}
-      this.#board = {}
+      // this.#board = {}
       this.#flipCounter = 0
       this.#flippedCards = []
       this.#numberOfAttempts = 0
+      this.#correctPairedCards = 0
+      this.#delayTurnBackCards = 1200 // time in ms
+      this.#delayHideCards = 1000 // time in ms
     }
 
     /**
@@ -57,8 +66,8 @@ customElements.define('game-board',
      */
     connectedCallback() {
       this.#inData = JSON.parse(this.getAttribute('data-input'))
-      this.#board = this.shadowRoot.querySelector('#board')
-      console.log('inData:', this.#inData)
+      // this.#board = this.shadowRoot.querySelector('#board')
+      // console.log('inData:', this.#inData)
       this.#setUpBoard()
     }
 
@@ -67,7 +76,7 @@ customElements.define('game-board',
      * @param cards
      */
     #findColumns(cards) {
-      console.log('cards', cards)
+      // console.log('cards', cards)
       for (let i = 1; i < Math.ceil((cards + 1) / 2); i++) {
         if (i * i === cards) return i
         for (let j = 0; j < i; j++) {
@@ -76,6 +85,9 @@ customElements.define('game-board',
       }
     }
 
+    /**
+     *
+     */
     #lockAllCards() {
       const boardContent = this.shadowRoot.querySelector('#board-content')
       const cards = boardContent.childNodes
@@ -85,6 +97,9 @@ customElements.define('game-board',
       })
     }
 
+    /**
+     *
+     */
     #unlockAllCards() {
       const boardContent = this.shadowRoot.querySelector('#board-content')
       const cards = boardContent.childNodes
@@ -94,28 +109,70 @@ customElements.define('game-board',
       })
     }
 
+    /**
+     * Returns the cards displayed to have their backside up.
+     */
+    #flipCards() {
+      const numbOfCards = this.#flippedCards.length
+      this.#flippedCards.forEach(card => {
+        card.flipCard()
+      })
+      for (let i = 0; i < numbOfCards; i++) {
+        this.#flippedCards.shift()
+      }
+      this.#unlockAllCards()
+    }
+
+    /**
+     *
+     */
+    #winsGame() {
+      // console.log('WinsGame')
+      const winner = new CustomEvent('game-winner', { detail: { name: this.#inData.name, attempts: this.#numberOfAttempts, cards: Number(this.#inData.game) } })
+      this.dispatchEvent(winner)
+    }
+
+    /**
+     *
+     * @param data
+     */
     #cardFlip(data) {
       this.#flipCounter++
       const cardId = data.detail.cardId
       const pairId = data.detail.pairId
       const card = this.shadowRoot.querySelector(`#${cardId}`)
+      const boardContent = this.shadowRoot.querySelector('#board-content')
+      const cards = boardContent.childNodes
+      let winner = false
       this.#flippedCards.push(card)
-
-      console.log('card:', card.data.pair)
 
       if (this.#flipCounter === 2) {
         this.#lockAllCards()
         this.#numberOfAttempts++
 
-        if (this.#flippedCards) { }
-      }
+        if (this.#flippedCards[0].data.pair === pairId && this.#flippedCards[0].id !== cardId) {
+          this.#correctPairedCards++
+          // Check if we have found all pairs
+          if (this.#correctPairedCards === cards.length / 2) {
+            this.#winsGame()
+            winner = true
+          } else {
+            setTimeout(() => {
+              this.#flippedCards.forEach(card => {
+                card.hideCard()
+              })
+            }, this.#delayHideCards)
+          }
+        }
+        if (!winner) {
+          setTimeout(() => {
+            this.#flipCards()
+          }, this.#delayTurnBackCards)
+        }
 
-      // console.log('cardFlip:', data)
-      // const id = data.detail.cardId
-      // const card = this.shadowRoot.querySelector(`#${id}`)
-      // setTimeout(() => {
-      //   card.flipCard()
-      // }, 2000)
+        // console.log(`\n***cardFlip:\ncards: ${cards}\nflippedCards: ${this.#flippedCards}\nattempts: ${this.#numberOfAttempts}\ncorrectPairedCards: ${this.#correctPairedCards}`)
+        this.#flipCounter = 0
+      }
     }
 
     /**
@@ -148,6 +205,7 @@ customElements.define('game-board',
           this.#cardFlip(ev)
         })
         card2.addEventListener('card-flip', (ev) => {
+          // console.log('cardFlip event', ev)
           this.#cardFlip(ev)
         })
         pile.push(card1)
@@ -172,9 +230,35 @@ customElements.define('game-board',
           console.error(err)
         }
       }
-      console.log('usedNumbers:', usedNumbers)
+      // console.log('usedNumbers:', usedNumbers)
+      let count = 0
       usedNumbers.forEach(numb => {
+        // console.log('pile[numb]:', pile[numb])
+        pile[numb].setAttribute('tabindex', ++count)
+        pile[numb].addEventListener('keydown', (ev) => {
+          // console.log('card keyown ev:', ev)
+          if (ev.code === 'Space' || ev.code === 'Enter') {
+            if (ev.originalTarget) {
+              ev.originalTarget.shadowRoot.querySelector('.container').click()
+            } else {
+              console.log('b4 click', document.activeElement)
+              ev.path[0].shadowRoot.querySelector('.container').click()
+              ev.path[0].focus()
+              console.log('after click', document.activeElement)
+            }
+          }
+        })
         boardContent.appendChild(pile[numb])
       })
+
+      console.log('activeElement 0', document.activeElement)
+      this.shadowRoot.querySelector('[tabindex="1"]').focus()
+      console.log('activeElement 1', document.activeElement)
+        // setTimeout(() => {
+        //   console.log(this.shadowRoot.querySelector('[tabindex="1"]'))
+        //   console.log('activeElement 2', document.activeElement)
+        //   this.shadowRoot.querySelector('[tabindex="1"]').focus()
+        //   console.log('activeElement 3', document.activeElement)
+        // }, 2000)
     }
   })

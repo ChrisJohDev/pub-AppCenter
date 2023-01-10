@@ -19,11 +19,13 @@ template.innerHTML = `
       max-width: 900px;
       height: 40%;
       z-index: 1;
+      border-radius: 0  0 12px 12px;
+      overflow: hidden;
     }
     header{
       height: 1.5rem;
       border-bottom: 1px grey solid;
-      background-color: lightslategray;
+      background-color: rgb(37, 37, 37);
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -54,6 +56,9 @@ template.innerHTML = `
     }
     .body{
       flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
     }
   </style>
   <div class="wrapper">

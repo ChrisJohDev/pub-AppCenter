@@ -59,8 +59,8 @@ const newSelectedElement = (ev) => {
   // console.log(`newSelectedElement apps.length: ${apps.length}`)
   apps.forEach(app => {
     // console.log(`ev: ${ev.target.getAttribute('tabindex')}`)
-    if (ev.target.getAttribute('tabindex') !== app.getAttribute('tabindex')) {
-      app.style.zIndex = app.getAttribute('tabindex')
+    if (ev.target.getAttribute('data-index') !== app.getAttribute('data-index')) {
+      app.style.zIndex = app.getAttribute('data-index')
     }
   })
 }
@@ -79,7 +79,8 @@ const startNewApp = (data) => {
     const container = document.createElement('app-container')
     container.setAttribute('app_name', data.name)
     const app = document.createElement(data.tag)
-    container.setAttribute('tabindex', tabIndexCounter++)
+    container.setAttribute('data-index', tabIndexCounter++)
+    container.setAttribute('tabindex', '0')
     container.addEventListener('new-select', (ev) => {
       newSelectedElement(ev)
     })

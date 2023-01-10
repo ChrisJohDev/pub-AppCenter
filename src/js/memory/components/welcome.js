@@ -5,6 +5,8 @@
  * @version 1.0.0
  */
 
+const headline = 'Memory Game'
+const pageText = 'Match all pairs of cards in as few attempts and as fast as possible.'
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
@@ -13,6 +15,7 @@ template.innerHTML = `
       margin: 0;
     }
     :host, main, form{
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -22,8 +25,18 @@ template.innerHTML = `
       /* width: 500px;
       height: 300px; */
     }
-    h1, header{
+    h1{
       margin-bottom: 1rem;
+    }
+    p{
+      width: clamp(50px, 60%, 300px);
+      text-align: center;
+    }
+    header{
+      padding-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     main{
       margin-top: 1rem;
@@ -46,8 +59,8 @@ template.innerHTML = `
     }
   </style>
   <header>
-    <h1>Memory Game</h1>
-    <p>Some rules about the game.</p>
+    <h1>${headline}</h1>
+    <p>${pageText}</p>
   </header>
   <main>
     <form>
@@ -74,6 +87,7 @@ customElements.define('welcome-page',
    *
    */
   class extends HTMLElement {
+    #name
     /**
      *
      */
@@ -86,7 +100,9 @@ customElements.define('welcome-page',
     /**
      *
      */
-    connectedCallback () {
+    connectedCallback() {
+      this.#name = this.name
+      console.log('welcome name:', this.name)
       const form = this.shadowRoot.querySelector('form')
       form.addEventListener('submit', (ev) => {
         ev.preventDefault()
@@ -110,6 +126,9 @@ customElements.define('welcome-page',
           }
         }
       })
+      if (this.#name) {
+        this.shadowRoot.querySelector('#name').value = this.#name
+      }
     }
 
     /**
