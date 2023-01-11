@@ -59,18 +59,42 @@ template.innerHTML = `
 
 customElements.define('memory-card',
   /**
-   *
+   * Custom element that represents a card in the memory game.
    */
   class extends HTMLElement {
+    /**
+     * The height of the card.
+     *
+     * @private
+     */
     #height
+
+    /**
+     * The width of the card.
+     *
+     * @private
+     */
     #width
+
+    /**
+     * The pairId of the card.
+     *
+     * @private
+     */
     #pairId
+
+    /**
+     * A flag indicating if the card is locked.
+     *
+     * @private
+     */
     #locked
 
     /**
+     * Class constructor function.
      *
-     * @param height
-     * @param width
+     * @param {string} [height='50px'] - The height of the card.
+     * @param {string} [width='50px'] - The width of the card.
      */
     constructor (height = '50px', width = '50px') {
       super()
@@ -82,12 +106,11 @@ customElements.define('memory-card',
     }
 
     /**
-     *
+     * Callback function that runs when the element is connected to the DOM.
      */
     connectedCallback () {
       const { imgFront, imgBack, pair } = this.data
       const container = this.shadowRoot.querySelector('.container')
-      // container.setAttribute('tabindex', '0')
       this.shadowRoot.querySelector('#imgFront').setAttribute('src', imgFront)
       this.shadowRoot.querySelector('#imgBack').setAttribute('src', imgBack)
       this.#pairId = pair
@@ -95,7 +118,6 @@ customElements.define('memory-card',
         if (!this.#locked) {
           this.#locked = true
           container.classList.toggle('flipped')
-          // console.log('pair', this.#pairId)
           const flip = new CustomEvent('card-flip', { detail: { pairId: this.#pairId, cardId: this.getAttribute('id') } })
           this.dispatchEvent(flip)
         }
@@ -107,29 +129,36 @@ customElements.define('memory-card',
     }
 
     /**
+     * Locks the card.
      *
+     * @private
      */
     lockCard () {
       this.#locked = true
     }
 
     /**
+     * Unlocks the card.
      *
+     * @private
      */
     unlockCard () {
       this.#locked = false
     }
 
     /**
+     * Hides the card.
      *
+     * @private
      */
     hideCard () {
       this.style.visibility = 'hidden'
     }
 
     /**
+     * Flips the card.
      *
-     * @param ev
+     * @private
      */
     flipCard () {
       const container = this.shadowRoot.querySelector('.container')
