@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * Start of the memory application.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -52,13 +52,37 @@ template.innerHTML = `
 
 customElements.define('memory-app',
   /**
-   *
+   * Custom element that represents the main memory game app.
    */
   class extends HTMLElement {
+    /**
+     * The shadow root of the component.
+     *
+     * @private
+     */
     #shadow
+
+    /**
+     * The welcome page element.
+     *
+     * @private
+     */
     #welcomePage
+
+    /**
+     * The timer element used to track elapsed time.
+     *
+     * @private
+     */
     #timer
+
+    /**
+     * The final time score of the game.
+     *
+     * @private
+     */
     #timeScore
+
     /**
      * Class contructor function.
      */
@@ -69,7 +93,7 @@ customElements.define('memory-app',
     }
 
     /**
-     * Connecte callback function.
+     * Callback function that runs when the element is connected to the DOM.
      */
     connectedCallback () {
       // this.setAttribute('style', 'width: max-content;')
@@ -80,14 +104,16 @@ customElements.define('memory-app',
     }
 
     /**
-     *
+     * Callback function that runs when the element is disconnected from the DOM.
      */
     disconnectedCallback () {
       this.#stopTimer()
     }
 
     /**
-     * The game timer.
+     * Start the timer.
+     *
+     * @private
      */
     #startTimer () {
       this.#timer = document.createElement('timer-counter')
@@ -99,7 +125,10 @@ customElements.define('memory-app',
     }
 
     /**
-     * Stops the current timer.
+     * Stop the timer.
+     *
+     * @returns {number} - the elapsed time in milliseconds.
+     * @private
      */
     #stopTimer () {
       return this.#timer.stopTimer()
@@ -108,11 +137,14 @@ customElements.define('memory-app',
 
     // Idea stolen from chatGPT
     /**
+     * Calculates the final score for the game.
      *
-     * @param root0
-     * @param root0.numCards
-     * @param root0.time
-     * @param root0.numAttempts
+     * @param {object} data - The data object containing the score parameters.
+     * @param {number} data.numCards - The number of cards in the game.
+     * @param {number} data.time - The elapsed time of the game.
+     * @param {number} data.numAttempts - The number of attempts taken by the player.
+     * @returns {number} The final score for the game.
+     * @private
      */
     #calculateScore ({ numCards, time, numAttempts }) {
       // higher number of cards increases points
@@ -123,20 +155,21 @@ customElements.define('memory-app',
       const seconds = time / 1000 || 1
 
       // Calculate the Attempt Penalty (e.g., you could use a coefficient to decrease the score based on the number of attempts)
-      const attemptCoefficient = 0.2 // Decrease score by 20% for every additional attempt
       const attemptPenalty = numCards > 4 ? numAttempts / Math.sqrt(numCards) : numAttempts
 
       // Calculate the total score
-      const score = (cardValue * numCards * Math.sqrt(numCards/2)) / (seconds) - attemptPenalty
+      const score = (cardValue * numCards * Math.sqrt(numCards / 2)) / (seconds) - attemptPenalty
       // console.log(`\n*** calculateScore:\ntime: ${time}\nnumCards: ${numCards}\nnumAttempts: ${numAttempts}\nscore: ${score}`)
 
       // return score with two decimals.
       return Math.floor(score * 100 + 0.5) / 100
     }
 
-
     /**
+     * Loads the welcome page.
      *
+     * @param {string} [name=''] - The player name.
+     * @private
      */
     #loadWelcome (name = '') {
       const welcome = document.createElement('welcome-page')
@@ -146,8 +179,10 @@ customElements.define('memory-app',
     }
 
     /**
+     * Loads the game board.
      *
-     * @param data
+     * @param {object} data - The data object containing the game details.
+     * @private
      */
     #loadGame (data) {
       const memory = document.createElement('game-board')
@@ -163,8 +198,10 @@ customElements.define('memory-app',
     }
 
     /**
+     * Loads the result page.
      *
-     * @param data
+     * @param {object} data - The data object containing the result details.
+     * @private
      */
     #loadResultPage (data) {
       const time = this.#stopTimer()
@@ -184,22 +221,3 @@ customElements.define('memory-app',
     }
   }
 )
-
-
-// function calculateScore(numCards, time, numAttempts) {
-//   // Determine the Card Value (e.g., you could use a fixed value of 100 points per card)
-//   const cardValue = 100;
-
-//   // Calculate the Time Penalty (e.g., you could use a coefficient to decrease the score based on the time taken and the number of cards)
-//   const timeCoefficient = 0.1; // Decrease score by 10% for every second taken
-//   const timePenalty = time * timeCoefficient * numCards;
-
-//   // Calculate the Attempt Penalty (e.g., you could use a coefficient to decrease the score based on the number of attempts)
-//   const attemptCoefficient = 0.2; // Decrease score by 20% for every additional attempt
-//   const attemptPenalty = numAttempts * attemptCoefficient;
-
-//   // Calculate the total score
-//   const score = (cardValue * numCards) - timePenalty - attemptPenalty;
-
-//   return score;
-// }

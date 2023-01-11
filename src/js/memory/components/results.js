@@ -1,5 +1,6 @@
 /**
- * Provide the result of the last game and a list of the top five scores.
+ * Provide the result of the last game and a list of the top five scores
+ * from localStorage.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.1.0
@@ -120,6 +121,7 @@ class ResultPage extends HTMLElement {
    * The reference to this shadow DOM.
    *
    * @type {object}
+   * #private
    */
   #thisShadow
 
@@ -127,6 +129,7 @@ class ResultPage extends HTMLElement {
    * Object that holds the data for the player who just played the game.
    *
    * @type {object}
+   * @private
    */
   #lastPlayer
 
@@ -134,13 +137,18 @@ class ResultPage extends HTMLElement {
    * Text string for the name we use for this game in the local web storage.
    *
    * @type {string}
+   * @private
    */
   #storageName
 
   /**
-   * Constructor.
+   * Creates an instance of ResultPage.
+   *
+   * Appends a shadow root to the element and adds
+   * the content of the 'template' variable to it.
+   * Initializes the properties of the class.
    */
-  constructor() {
+  constructor () {
     super()
     this.#thisShadow = this.attachShadow({ mode: 'open' })
     this.#thisShadow.appendChild(template.content.cloneNode(true))
@@ -154,29 +162,28 @@ class ResultPage extends HTMLElement {
   }
 
   /**
-   * Connected callback.
+   * Called every time the element is inserted into the DOM.
    */
-  connectedCallback() {
-    // console.log(`resultPage indata: ${JSON.stringify(this.data)}`)
+  connectedCallback () {
     if (this.data) {
       this.#lastPlayer.name = this.data.name
       this.#lastPlayer.score = this.data.score
-      // console.log(`connectedCallback: data.score: ${this.data.score}`)
     }
     this.#thisShadow.querySelector('#newGame').addEventListener('click', (ev) => {
       ev.preventDefault()
       this.#newGame()
     })
-    // console.log(`resultPage lastPlayer: ${JSON.stringify(this.#lastPlayer)}`)
     this.#displayResults()
     this.#thisShadow.querySelector('#newGame').focus()
   }
 
   /**
    * Handles the request to pplay the game again.
+   *
+   * @private
    */
-  #newGame() {
-    const data = { name: this.#lastPlayer.name}
+  #newGame () {
+    const data = { name: this.#lastPlayer.name }
     const newGame = new CustomEvent('new-game', { detail: data })
     this.dispatchEvent(newGame)
   }
@@ -185,8 +192,9 @@ class ResultPage extends HTMLElement {
    * Gets the previous scores from the local storage.
    *
    * @returns {object} - an array with all scores in storage.
+   * @private
    */
-  #getHighScoreList() {
+  #getHighScoreList () {
     const data = localStorage.getItem(this.#storageName)
     if (data && data.length < 1) return null
     try {
@@ -202,8 +210,9 @@ class ResultPage extends HTMLElement {
    * Writes the high scores into browser local storage.
    *
    * @param {object} list - an array of all the scores.
+   * @private
    */
-  #setHighScoreList(list) {
+  #setHighScoreList (list) {
     try {
       localStorage.setItem(this.#storageName, JSON.stringify(list))
     } catch (err) {
@@ -217,11 +226,11 @@ class ResultPage extends HTMLElement {
    * @param {object} indata - {ascending: boolean, list: array}
    *
    * @returns {object} - a sorted list
+   * @private
    */
-  #sortList(indata) {
+  #sortList (indata) {
     const newInData = JSON.parse(JSON.stringify(indata.list))
     const data = []
-    // console.log(`\n***\nindata: ${JSON.stringify(indata)}\nnewInData: ${newInData}`)
 
     newInData.forEach((elem, indx) => {
       if (indx === 0) data.push(elem)
@@ -250,7 +259,6 @@ class ResultPage extends HTMLElement {
       }
     })
 
-    // console.log(`sortList data:\n${JSON.stringify(data)}`)
     return data
   }
 
@@ -261,8 +269,9 @@ class ResultPage extends HTMLElement {
    * @param {object} player - the player object to compare against the data.
    *
    * @returns {number} - players ranking.
+   * @private
    */
-  #findPlayerRank(sortedList, player) {
+  #findPlayerRank (sortedList, player) {
     let rank = -1
     sortedList.forEach((item, indx) => {
       if (Number(player.score) < Number(item.score) && rank < 0) {
@@ -276,8 +285,10 @@ class ResultPage extends HTMLElement {
 
   /**
    * Main controller.
+   *
+   * @private
    */
-  #displayResults() {
+  #displayResults () {
     const resultList = this.#getHighScoreList() || []
 
     if (Array.isArray(resultList)) {
@@ -287,49 +298,18 @@ class ResultPage extends HTMLElement {
   }
 
   /**
-   * Formats the score to a string.
-   *
-   * @param {number} score - the score in ms.
-   * @returns {string} - the formated string.
-   */
-  // #formatScore(score) {
-  //   const minutes = Math.floor(score / 1000 / 60)
-  //   const sec = Math.floor((score - minutes * 60 * 1000) / 10 + 0.5) / 100
-  //   // console.log(`formatScore: score: ${score}, minutes: ${minutes}, sec: ${sec}`)
-  //   let retVal = `${minutes ? minutes + ':' : '0:'}${Math.floor(sec) > 9 ? sec : '0' + sec}${sec % 1 ? '' : '.00'}`
-  //   if (retVal.length < 7) retVal += '0'
-  //   return retVal
-  // }
-
-  /**
    * Controlls the dislay.
    *
    * @param {object} inList - array of high scores.
+   * @private
    */
-  #makeDisplay(inList) {
-  //   // console.log(`makeDisplay listlength: ${inList.length}`)
+  #makeDisplay (inList) {
     const listRoot = this.#thisShadow.querySelector('#topFiveList')
-  //   listRoot.innerHTML = '' // Ensure there is no previous content in listRoot.
-  //   if (this.data.success) {
-  //     const playerRank = this.#findPlayerRank(inList, this.#lastPlayer)
-  //     const dataToPlayerRank = `
-  //     <p>Hey ${this.#lastPlayer.name}, ${playerRank === 1 ? 'you\'re the Champ' : 'you rank as number ' + playerRank} of a total of ${inList.length + 1} players with a time of (m:sec) ${this.#formatScore(this.#lastPlayer.score)}</p>
-  //   `
-  //     this.#thisShadow.querySelector('#playerRank').innerHTML = dataToPlayerRank
-  //   } else {
-  //     const headline = inList.length > 0 ? `(The top ${inList.length > 5 ? '5' : inList.length} players record times` : 'No records yet!'
-  //     this.#thisShadow.querySelector('#resultHeader').innerHTML = headline
-  //     const playerRank = `<p>Sorry, you didn't make it. ${inList.length > 0 ? 'Here are the top ' + inList.length + ' scores.' : ''}</p>`
 
-  //     this.#thisShadow.querySelector('#playerRank').innerHTML = playerRank
-  //   }
-
-    // console.log(`***\n#lastPlayer: ${JSON.stringify(this.#lastPlayer)}\n#lastPlayer.name: ${this.#lastPlayer.name}\n#lastPlayer.score: ${this.#lastPlayer.score}`)
     this.#lastPlayer.score && inList.push({ name: this.#lastPlayer.name, score: this.#lastPlayer.score })
     const sortedList = this.#sortList({ list: inList, ascending: true })
     // List the top 5 scores
     const max = sortedList.length < 5 ? sortedList.length : 5
-    // console.log(`***\ninList.length: ${inList.length}\nsortedList.length: ${sortedList.length}\nmax: ${max}`)
 
     this.#thisShadow.querySelector('#playerRank').textContent = `Your score: ${this.#lastPlayer.score}`
 

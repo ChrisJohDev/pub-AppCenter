@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * THe memory gameboard and game logic.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -30,29 +30,73 @@ template.innerHTML = `
 `
 const images = ['./js/memory/images/cards/back.png', './js/memory/images/cards/img1.png', './js/memory/images/cards/img2.png', './js/memory/images/cards/img3.png', './js/memory/images/cards/img4.png', './js/memory/images/cards/img5.png', './js/memory/images/cards/img6.png', './js/memory/images/cards/img7.png', './js/memory/images/cards/img8.png', './js/memory/images/cards/img9.png', './js/memory/images/cards/img10.png']
 
+/**
+ * Custom Element for displaying a game board
+ * with cards to match pairs.
+ *
+ * @augments {HTMLElement}
+ */
 customElements.define('game-board',
+
   /**
-   *
+   * The anonymous class.
    */
   class extends HTMLElement {
-    #inData
-    // #board
-    #flipCounter
-    #flippedCards
-    #numberOfAttempts
-    #correctPairedCards
-    #delayTurnBackCards
-    #delayHideCards
     /**
-     *
+     * @private
+     * @type {object}
      */
-    constructor() {
+    #inData
+
+    /**
+     * @private
+     * @type {number}
+     */
+    #flipCounter
+
+    /**
+     * @private
+     * @type {HTMLElement[]}
+     */
+    #flippedCards
+
+    /**
+     * @private
+     * @type {number}
+     */
+    #numberOfAttempts
+
+    /**
+     * @private
+     * @type {number}
+     */
+    #correctPairedCards
+
+    /**
+     * @private
+     * @type {number}
+     */
+    #delayTurnBackCards
+
+    /**
+     * @private
+     * @type {number}
+     */
+    #delayHideCards
+
+    /**
+     * Creates an instance of GameBoard.
+     *
+     * Appends a shadow root to the element and adds
+     * the content of the 'template' variable to it.
+     * Initializes the properties of the class.
+     */
+    constructor () {
       super()
 
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.inData = {}
-      // this.#board = {}
       this.#flipCounter = 0
       this.#flippedCards = []
       this.#numberOfAttempts = 0
@@ -62,33 +106,38 @@ customElements.define('game-board',
     }
 
     /**
+     * Called every time the element is inserted into the DOM.
      *
+     * Parses the value of the 'data-input' attribute and sets up the game board.
      */
-    connectedCallback() {
+    connectedCallback () {
       this.#inData = JSON.parse(this.getAttribute('data-input'))
-      // this.#board = this.shadowRoot.querySelector('#board')
-      // console.log('inData:', this.#inData)
       this.#setUpBoard()
     }
 
     /**
+     * Finds the number of columns required for the game board.
      *
-     * @param cards
+     * @param {number} cards - The number of cards on the game board.
+     * @returns {number} - The number of columns needed.
+     * @private
      */
-    #findColumns(cards) {
-      // console.log('cards', cards)
+    #findColumns (cards) {
       for (let i = 1; i < Math.ceil((cards + 1) / 2); i++) {
         if (i * i === cards) return i
         for (let j = 0; j < i; j++) {
           if (i * (i - j) === cards) return i
         }
       }
+      return -1
     }
 
     /**
+     * Locks all cards on the game board.
      *
+     * @private
      */
-    #lockAllCards() {
+    #lockAllCards () {
       const boardContent = this.shadowRoot.querySelector('#board-content')
       const cards = boardContent.childNodes
 
@@ -98,9 +147,11 @@ customElements.define('game-board',
     }
 
     /**
+     * Unlocks all cards on the game board.
      *
+     * @private
      */
-    #unlockAllCards() {
+    #unlockAllCards () {
       const boardContent = this.shadowRoot.querySelector('#board-content')
       const cards = boardContent.childNodes
 
@@ -110,10 +161,13 @@ customElements.define('game-board',
     }
 
     /**
-     * Returns the cards displayed to have their backside up.
+     * Flips all cards that have been flipped over.
+     *
+     * @private
      */
-    #flipCards() {
+    #flipCards () {
       const numbOfCards = this.#flippedCards.length
+      // Flips all flipped cards.
       this.#flippedCards.forEach(card => {
         card.flipCard()
       })
@@ -124,19 +178,22 @@ customElements.define('game-board',
     }
 
     /**
+     * Dispatches an event indicating that the player has won the game.
      *
+     * @private
      */
-    #winsGame() {
-      // console.log('WinsGame')
+    #winsGame () {
       const winner = new CustomEvent('game-winner', { detail: { name: this.#inData.name, attempts: this.#numberOfAttempts, cards: Number(this.#inData.game) } })
       this.dispatchEvent(winner)
     }
 
     /**
+     * Flips a card and updates the game state.
      *
-     * @param data
+     * @param {Event} data - The event data sent by the card component.
+     * @private
      */
-    #cardFlip(data) {
+    #cardFlip (data) {
       this.#flipCounter++
       const cardId = data.detail.cardId
       const pairId = data.detail.pairId
@@ -169,17 +226,16 @@ customElements.define('game-board',
             this.#flipCards()
           }, this.#delayTurnBackCards)
         }
-
-        // console.log(`\n***cardFlip:\ncards: ${cards}\nflippedCards: ${this.#flippedCards}\nattempts: ${this.#numberOfAttempts}\ncorrectPairedCards: ${this.#correctPairedCards}`)
         this.#flipCounter = 0
       }
     }
 
     /**
+     * Sets up the game board.
      *
+     * @private
      */
-    #setUpBoard() {
-      // console.log(`***\ninData.game: ${this.#inData.game}\nNumber(inData.game): ${Number(this.#inData.game)}`)
+    #setUpBoard () {
       const numberOfCards = Number(this.#inData.game)
       const columns = this.#findColumns(numberOfCards)
       const boardContent = this.shadowRoot.querySelector('#board-content')
@@ -205,14 +261,15 @@ customElements.define('game-board',
           this.#cardFlip(ev)
         })
         card2.addEventListener('card-flip', (ev) => {
-          // console.log('cardFlip event', ev)
           this.#cardFlip(ev)
         })
         pile.push(card1)
         pile.push(card2)
       }
 
+      // Array for holding the random order of indexes for the pile array.
       const usedNumbers = []
+      // Creates a random order of numbers
       for (let i = 0; i < numberOfCards; i++) {
         let ok = false
         let counter = 0
@@ -230,35 +287,22 @@ customElements.define('game-board',
           console.error(err)
         }
       }
-      // console.log('usedNumbers:', usedNumbers)
       let count = 0
+      // Injects each card into the HTML stream in the random order of the usedNumbers array.
       usedNumbers.forEach(numb => {
-        // console.log('pile[numb]:', pile[numb])
         pile[numb].setAttribute('tabindex', ++count)
         pile[numb].addEventListener('keydown', (ev) => {
-          // console.log('card keyown ev:', ev)
           if (ev.code === 'Space' || ev.code === 'Enter') {
             if (ev.originalTarget) {
               ev.originalTarget.shadowRoot.querySelector('.container').click()
             } else {
-              console.log('b4 click', document.activeElement)
               ev.path[0].shadowRoot.querySelector('.container').click()
               ev.path[0].focus()
-              console.log('after click', document.activeElement)
             }
           }
         })
         boardContent.appendChild(pile[numb])
       })
-
-      console.log('activeElement 0', document.activeElement)
       this.shadowRoot.querySelector('[tabindex="1"]').focus()
-      console.log('activeElement 1', document.activeElement)
-        // setTimeout(() => {
-        //   console.log(this.shadowRoot.querySelector('[tabindex="1"]'))
-        //   console.log('activeElement 2', document.activeElement)
-        //   this.shadowRoot.querySelector('[tabindex="1"]').focus()
-        //   console.log('activeElement 3', document.activeElement)
-        // }, 2000)
     }
   })

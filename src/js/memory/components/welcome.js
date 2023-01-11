@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * The initial page for the memory application.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -76,20 +76,34 @@ template.innerHTML = `
         <option value="16">4x4 - 16 cards</option>
       </select>
       <div>
-        <input type="submit" value="Start Game" />
+        <input type="submit" value="Start Game" tabindex="3" />
       </div>
   </form>
   </main>
 `
-
+/**
+ * Custom Element for displaying a welcome page
+ * with a form to submit user's name and selected game.
+ *
+ * @augments {HTMLElement}
+ */
 customElements.define('welcome-page',
+
   /**
    *
    */
   class extends HTMLElement {
-    #name
     /**
+     * @private
+     * @type {string}
+     */
+    #name
+
+    /**
+     * Creates an instance of WelcomePage.
      *
+     * Appends a shadow root to the element and adds
+     * the content of the 'template' variable to it.
      */
     constructor () {
       super()
@@ -98,9 +112,12 @@ customElements.define('welcome-page',
     }
 
     /**
+     * Called every time the element is inserted into the DOM.
      *
+     * Adds an event listener to the form and sets the value of
+     * the '#name' input field if it was previously set.
      */
-    connectedCallback() {
+    connectedCallback () {
       this.#name = this.name
       console.log('welcome name:', this.name)
       const form = this.shadowRoot.querySelector('form')
@@ -112,7 +129,6 @@ customElements.define('welcome-page',
         if (name && game) {
           const data = { name, game }
           const playGame = new CustomEvent('play-game', { detail: data })
-          // console.log('data:', data)
           this.dispatchEvent(playGame)
         } else {
           const error = form.querySelector('#nameError')
@@ -129,11 +145,7 @@ customElements.define('welcome-page',
       if (this.#name) {
         this.shadowRoot.querySelector('#name').value = this.#name
       }
+      this.shadowRoot.querySelector('#name').focus()
     }
-
-    /**
-     *
-     */
-    disconnectedCallback () { }
   }
 )
