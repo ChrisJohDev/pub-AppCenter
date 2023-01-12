@@ -55,7 +55,7 @@ template.innerHTML = `
       justify-content: flex-start;
     }
     .body{
-      flex: 1;
+      height: calc(100% - 1.5rem);
       display: flex;
       justify-content: flex-start;
       align-items: flex-start;

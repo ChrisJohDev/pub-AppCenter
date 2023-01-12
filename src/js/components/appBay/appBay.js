@@ -5,6 +5,8 @@
  * @version 1.1.0
  */
 
+import { createPopup } from '@picmo/popup-picker'
+
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
