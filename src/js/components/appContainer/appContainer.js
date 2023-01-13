@@ -5,6 +5,9 @@
  * @version 1.1.0
  */
 
+import { v4 as uuidv4 } from 'uuid'
+import { addAppToAppOrder, newFocus, removeFromAppOrder } from '../../modules/appOrder.js'
+
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
@@ -84,20 +87,25 @@ customElements.define('app-container',
    */
   class extends HTMLElement {
     #appName
+    #appNumber
+    #appId
     /**
      *
      */
     constructor () {
       super()
+      this.#appId = uuidv4()
+      this.#appNumber = addAppToAppOrder(this.#appId)
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.addEventListener('mousedown', () => {
-        this.style.zIndex = 10000
+        newFocus(this.#appId)
+        // this.style.zIndex = 10000
         const selected = new CustomEvent('new-select')
         this.dispatchEvent(selected)
       })
       this.addEventListener('blur', () => {
-        this.style.zIndex = 1
+        this.style.zIndex = this.#appNumber
       })
     }
 
@@ -111,5 +119,11 @@ customElements.define('app-container',
         this.remove()
       })
     }
+
+    disconnectedCallback() {
+      removeFromAppOrder(this.#appId)
+    }
+
+    get appId () { return this.#appId }
   }
 )

@@ -9,6 +9,7 @@ import './components/footer'
 import './components/appBay'
 import './components/appContainer'
 import { moveElement } from './modules/moveElement.js'
+import { getAppOrder, clearAppOrder } from './modules/appOrder.js'
 
 const games = [
   {
@@ -59,9 +60,9 @@ const newSelectedElement = (ev) => {
   // console.log(`newSelectedElement apps.length: ${apps.length}`)
   apps.forEach(app => {
     // console.log(`ev: ${ev.target.getAttribute('tabindex')}`)
-    if (ev.target.getAttribute('data-index') !== app.getAttribute('data-index')) {
-      app.style.zIndex = app.getAttribute('data-index')
-    }
+    // if (ev.target.getAttribute('data-index') !== app.getAttribute('data-index')) {
+      app.style.zIndex = getAppOrder(app.appId)
+    // }
   })
 }
 
@@ -125,6 +126,7 @@ const addAppBay = () => {
  * Starting point for the application.
  */
 const app = () => {
+  clearAppOrder()
   const body = document.querySelector('body')
   const footer = document.createElement('footer-component')
   body.appendChild(footer)

@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * Module to handle positioning and movement of aaplications within the main application.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0

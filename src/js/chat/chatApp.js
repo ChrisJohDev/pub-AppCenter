@@ -188,7 +188,7 @@ customElements.define('chat-app',
     }
 
     #deployNotification(data) {
-      console.log('deployNotification:', data)
+      // console.log('deployNotification:', data)
       const page = this.shadowRoot.querySelector('.wrapper')
       const wrapper = document.createElement('div')
       const div = document.createElement('div')
@@ -262,10 +262,10 @@ customElements.define('chat-app',
      */
     #loadChat() {
       const data = localStorage.getItem(storageName)
-      console.log('data', data)
+      // console.log('data', data)
       this.#username = data && JSON.parse(data).name
       if (this.#username) {
-        console.log('username', this.#username)
+        // console.log('username', this.#username)
         this.shadowRoot.replaceChildren(template.content.cloneNode(true))
         this.#socket = new WebSocket(socketURL)
         this.#messageObj = {
@@ -279,7 +279,7 @@ customElements.define('chat-app',
 
         // Connection opened
         this.#socket.addEventListener('open', (event) => {
-          console.log('WebSocket connection opened.')
+          // console.log('WebSocket connection opened.')
         })
 
         // Listen for messages
@@ -316,7 +316,7 @@ customElements.define('chat-app',
         // Send message
         if (message) {
           this.#messageObj.data = message
-          console.log('messageObj', this.#messageObj)
+          // console.log('messageObj', this.#messageObj)
           this.#socket.send(JSON.stringify(this.#messageObj))
           this.shadowRoot.querySelector('#message').value = ''
         }
@@ -361,16 +361,12 @@ customElements.define('chat-app',
         setTimeout(() => {
           picker.toggle()
           picker.popupEl.style.zIndex = 10500
-          this.parentNode.style.zIndex = 10400
-          this.parentNode.parentNode.style.zIndex = 10401
-          this.parentNode.parentNode.shadowRoot.parentNode.style.zIndex = 10402
-          this.parentNode.parentNode.shadowRoot.parentNode.parentNode.style.zIndex = 10403
-          console.log('picker', picker.popupEl.style.zIndex)
+          // console.log('picker', picker.popupEl.style.zIndex)
         }, 10)
         // picker.toggle()
       })
       picker.addEventListener('emoji:select', (emoji) => {
-        console.log('emoji label:', emoji.label)
+        // console.log('emoji label:', emoji.label)
         this.shadowRoot.querySelector('#message').value += emoji.emoji
         this.shadowRoot.querySelector('#message').focus()
       })
