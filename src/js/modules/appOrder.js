@@ -1,5 +1,5 @@
 /**
- * Module to handle positioning and movement of aaplications within the main application.
+ * Module to handle the positioning along z-axis.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -7,8 +7,13 @@
 
 const storage = 'apporder-LNU-B3'
 
+/**
+ * Adds a new app to the apporder.
+ *
+ * @param {string} id - The id of the app to be added to the order.
+ * @returns {number} The length of the app order list after the app has been added.
+ */
 export const addAppToAppOrder = (id) => {
-  console.log('addAppToAppOrder')
   try {
     const appList = JSON.parse(sessionStorage.getItem(storage)) || []
     appList.push(id)
@@ -21,8 +26,12 @@ export const addAppToAppOrder = (id) => {
   }
 }
 
+/**
+ * Rearrange the app order when a new app has recieved focus.
+ *
+ * @param {string} id - The id of the app to be added to the order.
+ */
 export const newFocus = (id) => {
-  console.log('newFocus')
   try {
     const appList = JSON.parse(sessionStorage.getItem(storage))
     const remove = appList.indexOf(id)
@@ -35,8 +44,13 @@ export const newFocus = (id) => {
   }
 }
 
+/**
+ * Returns the order of the app with the given id in the list stored in session storage.
+ *
+ * @param {string} id - The id of the app whose order is to be returned
+ * @returns {number} - The order of the app in the list, or -1 if an error occurred
+ */
 export const getAppOrder = (id) => {
-  console.log('getAppOrder')
   try {
     const appList = JSON.parse(sessionStorage.getItem(storage))
 
@@ -47,8 +61,12 @@ export const getAppOrder = (id) => {
   }
 }
 
+/**
+ * Removes an app from the app order in session storage.
+ *
+ * @param {string} id - The ID of the app to be removed.
+ */
 export const removeFromAppOrder = (id) => {
-  console.log('removeFromAppOrder')
   try {
     const appList = JSON.parse(sessionStorage.getItem(storage))
     appList.splice(appList.indexOf(id), 1)
@@ -59,8 +77,10 @@ export const removeFromAppOrder = (id) => {
   }
 }
 
+/**
+ * Clears the stored app order from session storage.
+ */
 export const clearAppOrder = () => {
-  console.log('clearAppOrder')
   try {
     sessionStorage.removeItem(storage)
   } catch (err) {

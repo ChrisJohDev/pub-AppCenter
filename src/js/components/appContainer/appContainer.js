@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid'
-import { addAppToAppOrder, newFocus, removeFromAppOrder } from '../../modules/appOrder.js'
+import { addAppToAppOrder, getAppOrder, newFocus, removeFromAppOrder } from '../../modules/appOrder.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -100,7 +100,6 @@ customElements.define('app-container',
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.addEventListener('mousedown', () => {
         newFocus(this.#appId)
-        // this.style.zIndex = 10000
         const selected = new CustomEvent('new-select')
         this.dispatchEvent(selected)
       })
@@ -118,6 +117,7 @@ customElements.define('app-container',
         parent.removeChild(this)
         this.remove()
       })
+      this.style.zIndex = getAppOrder(this.#appId)
     }
 
     disconnectedCallback() {

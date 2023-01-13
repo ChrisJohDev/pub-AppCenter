@@ -130,8 +130,8 @@ customElements.define('memory-app',
      * @returns {number} - the elapsed time in milliseconds.
      * @private
      */
-    #stopTimer () {
-      return this.#timer.stopTimer()
+    #stopTimer() {
+      return this.#timer && this.#timer.stopTimer()
       // console.log(`questionPage stopTimer score: ${this.#score}`)
     }
 

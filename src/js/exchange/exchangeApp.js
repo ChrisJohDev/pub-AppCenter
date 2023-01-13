@@ -23,3 +23,11 @@ template.innerHTML = `
 <div class="wrapper">
 </div>
 `
+customElements.define('exchange-app',
+
+  class extend HTMLElement {
+    constructor() {
+      super()
+    }
+  }
+)

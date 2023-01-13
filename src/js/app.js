@@ -50,19 +50,15 @@ let tabIndexCounter = 1
 // const appStartPos = { top: 10, left: 10 }
 
 /**
- * When a new app-container is selected any previous selected will
- * reset its z-index to the original index i.e. the same as its tabindex.
+ * When a new app-container is selected all apps z-index
+ * properties are set to the new order.
  *
  * @param {HTMLEvent} ev - the event object.
  */
 const newSelectedElement = (ev) => {
   const apps = document.querySelector('#appArea').childNodes
-  // console.log(`newSelectedElement apps.length: ${apps.length}`)
   apps.forEach(app => {
-    // console.log(`ev: ${ev.target.getAttribute('tabindex')}`)
-    // if (ev.target.getAttribute('data-index') !== app.getAttribute('data-index')) {
-      app.style.zIndex = getAppOrder(app.appId)
-    // }
+    app.style.zIndex = getAppOrder(app.appId)
   })
 }
 
@@ -75,12 +71,11 @@ const startNewApp = (data) => {
   // console.log(`startNewApp data: ${JSON.stringify(data)}`)
   try {
     const parent = document.querySelector('#appArea')
-    import(data.url/* @vite-ignore */) // Dynamic import of applicationsChrome
+    import(data.url/* @vite-ignore */) // Dynamic import of applications
     // console.log(`data.tag: ${data.tag}`)
     const container = document.createElement('app-container')
     container.setAttribute('app_name', data.name)
     const app = document.createElement(data.tag)
-    container.setAttribute('data-index', tabIndexCounter++)
     container.setAttribute('tabindex', '0')
     container.addEventListener('new-select', (ev) => {
       newSelectedElement(ev)
