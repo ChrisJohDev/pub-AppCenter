@@ -21,7 +21,7 @@ const games = [
     }
   },
   {
-    name: 'Exchange',
+    name: 'Exchange Rates',
     url: './exchange',
     tag: 'exchange-app',
     image: {

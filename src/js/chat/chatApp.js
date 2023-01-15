@@ -170,6 +170,9 @@ customElements.define('chat-app',
       this.#chatId = v4()
       this.attachShadow({ mode: 'open' })
       this.#loadChat()
+
+      const parent = this.parentElement
+      this.style.height = `${parent.clientHeight}px`
     }
 
     /**

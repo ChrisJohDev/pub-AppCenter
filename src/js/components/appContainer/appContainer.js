@@ -11,6 +11,10 @@ import { addAppToAppOrder, getAppOrder, newFocus, removeFromAppOrder } from '../
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
+    *{
+      box-sizing: border-box;
+      margin: 0;
+    }
     :host{
       position: absolute;
       border: 1px solid grey;
@@ -20,10 +24,19 @@ template.innerHTML = `
       max-height: 500px;
       min-width: 350px;
       max-width: 900px;
-      height: 40%;
+      /* height: 40%; */
       z-index: 1;
       border-radius: 0  0 12px 12px;
       overflow: hidden;
+    }
+    .wrapper{
+      min-height: 300px;
+      max-height: 500px;
+      min-width: 350px;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
     header{
       height: 1.5rem;
@@ -40,6 +53,13 @@ template.innerHTML = `
     header > h3 {
       user-select: none;
     }
+    .body{
+      flex: 1;
+      /* height: calc(100% - 1.5rem); */
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
     input[type="button"]{
       box-sizing: content-box;
       margin-right: 3px;
@@ -50,18 +70,6 @@ template.innerHTML = `
     }
     input[type="button"]:hover{
       border: outset 2px black;
-    }
-    .wrapper{
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-    .body{
-      height: calc(100% - 1.5rem);
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start;
     }
   </style>
   <div class="wrapper">
