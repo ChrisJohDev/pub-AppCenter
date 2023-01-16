@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { getCurrencyCodes, getPair } from './components/connections.js'
+import { getCurrencyCodes, getPair, getLatest } from './components/connections.js'
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -113,11 +113,42 @@ pairTemplate.innerHTML = `
 
 const latestTemplate = document.createElement('template')
 latestTemplate.innerHTML = `
-<style></style>
+<style>
+  .latest-wrapper{
+    margin-top: 0.8rem;
+  }
+  form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  form > div + div{
+    margin-top: 1rem;
+  }
+  .selection-wrapper{
+    display: flex;
+    justify-content: center;
+  }
+  .section{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 0.4rem;
+  }
+</style>
 <div class="latest-wrapper">
   <form>
-    <label for="base">Currency:</label>
-    <select id="base"></select>
+    <div class="section">
+      <label for="base">Currency:</label>
+      <select id="base"></select>
+    </div>
+    <div class="section">
+      <label for="quotes">Select 5 currencies:</label>
+      <select id="quotes" ></select>
+    </div>
+    <div>
+      <input type="submit" id="submit" value="Submit" />
+    </div>
   </form>
 </div>
 `
@@ -178,6 +209,7 @@ customElements.define('exchange-app',
      */
     async #loadPair() {
       // console.log('#loadPair', this.#currencyList)
+      this.style.height = '300px'
       const dataArea = this.shadowRoot.querySelector('#dataArea')
       dataArea.replaceChildren(pairTemplate.content.cloneNode(true))
       const form = dataArea.querySelector('form')
@@ -225,16 +257,16 @@ customElements.define('exchange-app',
           p.style.textAlign = 'center'
           p.style.marginTop = '1rem'
           p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate.rate}`
-          
-          
+
+
           console.log('base:', selectBase)
           console.log('rate', rate)
           div.appendChild(p)
           if (this.shadowRoot.querySelector('#currency-rate')) {
-            this.shadowRoot.querySelector('.currency-container')
-            .removeChild(this.shadowRoot.querySelector('#currency-rate'))
+            this.shadowRoot.querySelector('.display-area')
+              .removeChild(this.shadowRoot.querySelector('#currency-rate'))
           }
-          this.shadowRoot.querySelector('.currency-container').appendChild(div)
+          this.shadowRoot.querySelector('.display-area').appendChild(div)
         } else {
           const popup = document.createElement('div')
           const p = document.createElement('p')
@@ -307,9 +339,91 @@ customElements.define('exchange-app',
     /**
      *
      */
-    #loadLatest() {
+    async #loadLatest() {
+      // console.log('#loadLatest', this.#currencyList)
+      this.style.height = '480px'
       const dataArea = this.shadowRoot.querySelector('#dataArea')
       dataArea.replaceChildren(latestTemplate.content.cloneNode(true))
+      const form = dataArea.querySelector('form')
+      const selectBase = dataArea.querySelector('#base')
+      const selectQuotes = dataArea.querySelector('#quotes')
+      const option = document.createElement('option')
+      option.setAttribute('value', '')
+      option.setAttribute('style', 'color: grey;')
+      option.textContent = '-- Select --'
+      selectBase.appendChild(option.cloneNode(true))
+      selectQuotes.appendChild(option)
+      selectQuotes.multiple = true
+
+      for (const curr of await this.#currencyList) {
+        const option = document.createElement('option')
+        option.setAttribute('value', JSON.stringify([curr[0], curr[1]]))
+        option.setAttribute('title', curr[1])
+        option.textContent = `${curr[0]} - ${curr[1]}`
+        selectBase.appendChild(option.cloneNode(true))
+        selectQuotes.appendChild(option)
+      }
+
+      selectQuotes.addEventListener('change', () => {
+        if (selectQuotes.selectedOptions.length > 5) {
+          alert('You can only select 5 currencies.')
+          selectQuotes.selectedOptions[5].selected = false
+        }
+      })
+
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault()
+        console.log('submit')
+        if (selectBase.value && selectQuotes.selectedOptions) {
+          dataArea.querySelector('#latest-section') && dataArea.removeChild(dataArea.querySelector('#latest-section'))
+          const base = JSON.parse(selectBase.value)
+          const rates = await getLatest(base[0])
+          const section = document.createElement('section')
+          section.setAttribute('style', 'display: flex; gap: 0.3rem; justify-content: space-evenly; align-items: flex-start; flex-wrap: wrap; overflow: auto;')
+          section.setAttribute('id', 'latest-section')
+
+          for (const option of selectQuotes.selectedOptions) {
+            const quote = JSON.parse(option.value)
+            const rate = rates[quote[0]]
+            const div = document.createElement('div')
+            div.setAttribute('id', 'currency-rate')
+            const p = document.createElement('p')
+            const span1 = document.createElement('span')
+            span1.setAttribute('title', base[1])
+            span1.textContent = base[0]
+            p.setAttribute('style', `
+              border: 2px solid gold; 
+              padding: 0.3rem 0.5rem; 
+              border-radius: 8px;
+              background-color: rgb(75, 75, 75);
+            `)
+            p.style.textAlign = 'center'
+            p.style.marginTop = '1rem'
+            p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate}`
+            div.appendChild(p)
+            section.appendChild(div)
+          }
+          dataArea.append(section)
+        } else {
+          console.log(`base: ${selectBase.value}\nquotes: ${selectQuotes.selectedOptions}`)
+          alert('Select a currency!')
+        }
+      })
+
+      // disable the chosen currency in the other select createElement
+      // we don't want to query what USD/USD is since it's always 1.
+      selectBase.addEventListener('change', (ev) => {
+        console.log('ev', selectBase.value)
+        const choice = selectBase.value
+        const list = selectQuotes.querySelectorAll('option')
+        for (const option of list) {
+          if (option.value === choice) {
+            option.setAttribute('disabled', true)
+          } else {
+            option.removeAttribute('disabled')
+          }
+        }
+      })
     }
   }
 )

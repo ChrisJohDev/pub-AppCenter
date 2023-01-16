@@ -67,24 +67,21 @@ export const getPair = async (base, quote) => {
  * Collects all available reates agains the currency provided.
  *
  * @param {string} currency - the currency code to get all latest reates against.
- * @returns {object} - latest rates for all available currencies.
+ * @returns {object} an object of the latest rates for all available currencies.
  */
-// {
-//   "base": "USD",
-//   "rates": {
+//   {
 //     "USD": 1,
 //     "AED": 3.6725,
 //     ...
 //   }
-// }
-export const latestRates = async (currency) => {
+export const getLatest = async (currency) => {
   return new Promise((resolve, reject) => {
     (async () => {
       try {
         const data = await fetch(baseUrl + `/latest/${currency}`)
         const json = await data.json()
 
-        resolve(json)
+        resolve(json.rates)
       } catch (err) {
         console.error('latestRates encountered an error.', err)
         reject(err)
