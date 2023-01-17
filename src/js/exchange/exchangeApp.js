@@ -367,7 +367,10 @@ customElements.define('exchange-app',
       selectQuotes.addEventListener('change', () => {
         if (selectQuotes.selectedOptions.length > 5) {
           alert('You can only select 5 currencies.')
-          selectQuotes.selectedOptions[5].selected = false
+          const length = selectQuotes.selectedOptions.length - 1
+          for (let i = length; i > 4; i--) {
+            selectQuotes.selectedOptions[i].selected = false
+          }
         }
       })
 
