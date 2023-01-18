@@ -22,6 +22,7 @@ template.innerHTML = `
     }
     :host{
       justify-content: flex-start;
+      height: 100%;
       /* width: 500px;
       height: 300px; */
     }

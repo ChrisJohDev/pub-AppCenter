@@ -10,6 +10,8 @@ import './components/gameBoard.js'
 import './components/results.js'
 import '../components/timer'
 
+const nameStorageName = 'memoryGameB3LNU-playerName'
+
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -20,8 +22,6 @@ template.innerHTML = `
   :host{
     display: flex;
     width: 100%;
-    height: 100%;
-    flex: 1;
     background-color: rgb(50, 50, 50);
   }
   .game-wrapper{
@@ -83,6 +83,8 @@ customElements.define('memory-app',
      */
     #timeScore
 
+    #nameStorage
+
     /**
      * Class contructor function.
      */
@@ -90,14 +92,18 @@ customElements.define('memory-app',
       super()
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
+      this.#nameStorage = nameStorageName
     }
 
     /**
      * Callback function that runs when the element is connected to the DOM.
      */
     connectedCallback () {
+      const name = this.#getName()
+      const parent = this.parentElement
+      this.style.height = `${parent.clientHeight}px`
       // this.setAttribute('style', 'width: max-content;')
-      this.#loadWelcome()
+      this.#loadWelcome(name)
       this.addEventListener('load-welcome', (ev) => { this.#loadWelcome() })
       this.addEventListener('play-game', (ev) => { this.#loadGame(ev.detail) })
       this.addEventListener('show-result', (ev) => { this.#loadResultPage(ev.detail) })
@@ -130,7 +136,7 @@ customElements.define('memory-app',
      * @returns {number} - the elapsed time in milliseconds.
      * @private
      */
-    #stopTimer() {
+    #stopTimer () {
       return this.#timer && this.#timer.stopTimer()
       // console.log(`questionPage stopTimer score: ${this.#score}`)
     }
@@ -166,6 +172,24 @@ customElements.define('memory-app',
     }
 
     /**
+     * Gets the stored username in local storage.
+     *
+     * @returns {string} the name in storage or an empty string.
+     */
+    #getName () {
+      return localStorage.getItem(this.#nameStorage) || ''
+    }
+
+    /**
+     * Sets the username in localStorage.
+     *
+     * @param {string} name - the name to be stored.
+     */
+    #setName (name) {
+      localStorage.setItem(this.#nameStorage, name)
+    }
+
+    /**
      * Loads the welcome page.
      *
      * @param {string} [name=''] - The player name.
@@ -184,9 +208,10 @@ customElements.define('memory-app',
      * @param {object} data - The data object containing the game details.
      * @private
      */
-    #loadGame (data) {
+    #loadGame(data) {
+      this.#setName(data.name)
       const memory = document.createElement('game-board')
-      // console.log('memoryApp loadGame data:', data)
+      console.log('memoryApp loadGame data:', data)
       memory.setAttribute('data-input', JSON.stringify(data))
       memory.addEventListener('game-winner', (ev) => {
         ev.preventDefault()
