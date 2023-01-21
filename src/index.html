@@ -1,21 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" href="./images/favicon.ico" type="image/ico" />
-    <link rel="stylesheet" type="text/css" href="./css/styles.css" />
-    <title>Examination Assignment - PWD</title>
-    <script type="module" src="./js/index.js"></script>
-  </head>
 
-  <body>
-    <h1>The Golden App Center</h1>
-    <hr />
-    <main>
-      <div id="bay"></div>
-      <div id="appArea"></div>
-    </main>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/images/favicon.ico" type="image/ico" />
+  <!-- <link rel="stylesheet" type="text/css" href="./css/styles.css" /> -->
+  <title>Examination Assignment - PWD</title>
+  <style>
+    *,
+    *:before,
+    *:after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      vertical-align: bottom;
+      border-style: none;
+    }
+
+    html {
+      height: calc(100vh - 16px);
+    }
+
+    body {
+      height: 100%;
+      width: 100%;
+      background-color: rgb(42, 42, 42);
+      color: gold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    hr {
+      width: 75%;
+      margin: 0.5rem 0;
+      color: rgb(65, 64, 64);
+    }
+
+    main {
+      background-color: inherit;
+      width: 75%;
+      height: 100%;
+      border: rgb(79, 79, 79) 4px inset;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    #appArea {
+      flex-grow: 1;
+    }
+
+    #bay {
+      height: clamp(50px, 5%, 80px);
+    }
+  </style>
+  <script type="module" src="./index.js"></script>
+</head>
+
+<body>
+  <h1>The Golden App Center</h1>
+  <hr />
+  <main>
+    <div id="bay"></div>
+    <div id="appArea"></div>
+  </main>
+</body>
+
 </html>

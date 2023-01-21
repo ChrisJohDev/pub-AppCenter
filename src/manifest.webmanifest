@@ -2,7 +2,7 @@
   "lang": "en",
   "dir": "ltr",
   "name": "The Golden App Center",
-  "short_name": "GoldAppCenter",
+  "short_name": "AppCenter",
   "description": "A platform for launching implemented application.",
   "icons": [
     {
@@ -50,6 +50,5 @@
   "start_url": "/index.html",
   "display": "standalone",
   "orientation": "landscape",
-  "theme_color": "gold",
   "background_color": "rgb(50,50,50)"
 }

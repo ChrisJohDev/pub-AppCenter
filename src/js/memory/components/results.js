@@ -292,7 +292,7 @@ class ResultPage extends HTMLElement {
     const resultList = this.#getHighScoreList() || []
 
     if (Array.isArray(resultList)) {
-      const sortedList = this.#sortList({ list: resultList, ascending: true })
+      const sortedList = this.#sortList({ list: resultList, ascending: false })
       this.#makeDisplay(sortedList)
     } else { console.log('list is not an array', JSON.stringify(resultList) + Array.isArray(resultList)) }
   }
@@ -307,7 +307,7 @@ class ResultPage extends HTMLElement {
     const listRoot = this.#thisShadow.querySelector('#topFiveList')
 
     this.#lastPlayer.score && inList.push({ name: this.#lastPlayer.name, score: this.#lastPlayer.score })
-    const sortedList = this.#sortList({ list: inList, ascending: true })
+    const sortedList = this.#sortList({ list: inList, ascending: false })
     // List the top 5 scores
     const max = sortedList.length < 5 ? sortedList.length : 5
 

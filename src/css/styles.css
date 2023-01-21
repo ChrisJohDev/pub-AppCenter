@@ -1,4 +1,7 @@
-@import "./reset.css";
+/**
+* Main stylesheet. 
+*/
+@import url("./reset.css");
 
 html{
   height: calc(100vh - 16px);
