@@ -3,7 +3,7 @@
 // Adapted by Chris Johannesson
 
 const cacheId = 'pwa4EK9i'
-const VERSION = 'v0.0.11'
+const VERSION = 'v0.1.5'
 const cacheName = cacheId + '-B3SW-' + VERSION
 // let count = 0
 const preCacheList = [
@@ -82,32 +82,66 @@ self.addEventListener('message', (ev) => {
   }
 })
 
-const respondAndCache = (ev) => {
+/**
+ *
+ * @param ev
+ */
+const respondAndCache = async (ev) => {
   console.log('\n*** [xxServiceWorker] respondAndCache():', ev)
-  ev.respondWith(caches.open(cacheName)
-    .then((cache) => {
-      return fetch(ev.request.url)
-        .then((fetchedResponse) => {
-          console.log('[ServiceWorker] respondAndCache', ev.request.url, fetchedResponse.clone())
-          cache.put(ev.request.url, fetchedResponse.clone())
-          return fetchedResponse
-        }).catch(() => {
-          // No network, return cache
-          const res = cache.match(ev.request.url)
-          console.log('[ServiceWorker] respondAndCache from cache', ev.request.url, res.clone())
-          return res
-        })
-    })
+  const url = new URL(ev.request.url)
+  ev.respondWith(
+    caches.open(cacheName)
+      .then(async (cache) => {
+        return fetch(ev.request.url)
+          .then((fetchedResponse) => {
+            const response = fetchedResponse.clone()
+            const data = response.text()
+            const r = fetchedResponse.clone()
+            console.log('[ServiceWorker] respondAndCache url, data', ev.request.url, data)
+            cache.put(url.pathname, r)
+            return fetchedResponse
+          }).catch((err) => {
+            // No network, return cache
+            console.log('[ServiceWorker] respondAndCache read from cache url', url.pathname)
+            return cache.match(url.pathname)
+              .then((response) => {
+                if (response) {
+                  console.log('[ServiceWorker] respondAndCache return cached:', url.pathname)
+                  return response
+                } else if (url.pathname.includes('api/pair')) {
+                  console.log('[ServiceWorker] respondAndCache not in cache url', url.pathname)
+                  const options = {status: 200, statusText: 'OK-cache'}
+                  const res = new Response('{ "rate": "Offline rate is not available" }', options)
+                  return res
+                } else if (url.pathname.includes('api/latest')) {
+                  console.log('[ServiceWorker] respondAndCache not in cache latest url', url.pathname)
+                  const options = { status: 200, statusText: 'OK-cache' }
+                  const res = new Response('{ "rate": "Offline rates are not available." }', options)
+                  return res
+                } else {
+                  console.error('[ServiceWorker] respondAndCache.\nRequested data not available in cache.\nurl', url, err)
+                }
+              }).catch((err) => {
+                console.error('[ServiceWorker] respondAndCache.\nRequested catched last stop.\nurl', url, err)
+              })
+          })
+      })
   )
 }
 
+/**
+ *
+ * @param ev
+ */
 const respondNoCache = (ev) => {
   console.log('\n*** [xxServiceWorker] respondNoCache():', ev)
   ev.respondWith(caches.open(cacheName)
     .then((cache) => {
       return fetch(ev.request.url)
         .then((fetchedResponse) => {
-          console.log('[ServiceWorker] respondNoCache', ev.request.url, fetchedResponse.clone())
+          const response = fetchedResponse.clone()
+          const data = response.text()
+          console.log('[ServiceWorker] respondNoCache url, data', ev.request.url, data)
           return fetchedResponse
         }).catch((err) => {
           console.error('No network access', err)
@@ -125,6 +159,10 @@ const navigation = (ev) => {
   respondAndCache(ev)
 }
 
+/**
+ *
+ * @param ev
+ */
 const noCors = (ev) => {
   const url = new URL(ev.request.url)
   console.log('\n*** [xServiceWorker] noCors() protocol:', url.pathname, url.protocol)
@@ -135,11 +173,15 @@ const noCors = (ev) => {
   }
 }
 
+/**
+ *
+ * @param ev
+ */
 const withCors = (ev) => {
   const url = new URL(ev.request.url)
   console.log('\n*** [xServiceWorker] withCors() pathname:', url.pathname)
   if (url.pathname.startsWith('/@')) {
-    if (url.pathname.startsWith('/@vite') || url.pathname.startsWith('/@fs')) return
+    // if (url.pathname.startsWith('/@vite') || url.pathname.startsWith('/@fs')) return
     respondNoCache(ev)
   } else {
     respondAndCache(ev)
@@ -156,15 +198,21 @@ const withCors = (ev) => {
 self.addEventListener('fetch', (ev) => {
   // console.log('\n*** [ServiceWorker] fetch event mode:', ev.request.mode)
   // const url = new URL(ev.request.url)
-  console.log('\n*** [ServiceWorker] fetch ev:', ev, new URL(ev.request.url))
+  const url = new URL(ev.request.url)
+  console.log('\n*** [ServiceWorker] fetch ev, url:', ev, url)
   console.log('\n*** [ServiceWorker] fetch request mode:', typeof ev.request.mode, ev.request.mode)
 
-  if (ev.request.mode === 'navigate') {
-    console.log('\n*** [ServiceWorker] if navigate:')
-    navigation(ev)
+  if (ev.request.headers.get('upgrade') === 'websocket') {
+    // Allow WebSocket connections to pass through the service worker
+    ev.respondWith(fetch(ev.request))
+  } else {
+    if (ev.request.mode === 'navigate') {
+      console.log('\n*** [ServiceWorker] if navigate:')
+      navigation(ev)
+    } else if (ev.request.mode === 'no-cors') noCors(ev)
+    else if (ev.request.mode === 'cors') withCors(ev)
   }
-  else if (ev.request.mode === 'no-cors') noCors(ev)
-  else if (ev.request.mode === 'cors') withCors(ev)
+
   // else respondNoCache(ev)
 })
 

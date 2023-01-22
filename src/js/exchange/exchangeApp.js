@@ -167,7 +167,10 @@ customElements.define('exchange-app',
       super()
 
       getCurrencyCodes()
-        .then(list => { this.#currencyList = list })
+        .then(list => {
+          this.#currencyList = list
+          console.log('[exhangeApp constructor list:', this.#currencyList)
+        })
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
     }
@@ -178,9 +181,10 @@ customElements.define('exchange-app',
     async connectedCallback() {
       const form = this.shadowRoot.querySelector('#queryType')
       const displayTypes = form.querySelectorAll('input[name="displayType"]')
+      console.log('[exchangeApp] connectedCallback displayTypes:', displayTypes)
 
       displayTypes.forEach(type => {
-        type.addEventListener('click', (ev) => this.#checkChange(ev))
+        type.addEventListener('change', (ev) => this.#checkChange(ev))
       })
     }
 
@@ -189,26 +193,35 @@ customElements.define('exchange-app',
      * @param ev
      */
     #checkChange(ev) {
-      if (ev.originalTarget) { // Firefox
-        if (ev.originalTarget.value === 'pair') {
-          this.#loadPair()
-        } else {
-          this.#loadLatest()
-        }
-      } else if (ev.path) { // Chrome
-        if (ev.path[0].value === 'pair') {
+      // console.log('[exchangeApp] checkChange ev.target:', ev.target)
+      if (ev.target) {
+        if (ev.target.value === 'pair') {
           this.#loadPair()
         } else {
           this.#loadLatest()
         }
       }
+
+      // if (ev.originalTarget) { // Firefox
+      //   if (ev.originalTarget.value === 'pair') {
+      //     this.#loadPair()
+      //   } else {
+      //     this.#loadLatest()
+      //   }
+      // } else if (ev.path) { // Chrome
+      //   if (ev.path[0].value === 'pair') {
+      //     this.#loadPair()
+      //   } else {
+      //     this.#loadLatest()
+      //   }
+      // }
     }
 
     /**
      *
      */
     async #loadPair() {
-      // console.log('#loadPair', this.#currencyList)
+      console.log('[exchangeApp] #loadPair currencyList:', this.#currencyList)
       this.style.height = '300px'
       const dataArea = this.shadowRoot.querySelector('#dataArea')
       dataArea.replaceChildren(pairTemplate.content.cloneNode(true))

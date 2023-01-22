@@ -51,8 +51,11 @@ export const getPair = async (base, quote) => {
   return new Promise((resolve, reject) => {
     (async () => {
       try {
+        console.log('[connections] getPair b4 fetch:')
         const data = await fetch(baseUrl + `/pair/${base}/${quote}`)
+        console.log('[connections] getPair data:', data)
         const json = await data.json()
+        console.log('[connections] getPair json:', json)
 
         resolve(json)
       } catch (err) {

@@ -46,7 +46,7 @@ const games = [
   }
 ]
 
-let tabIndexCounter = 1
+const tabIndexCounter = 1
 // const appStartPos = { top: 10, left: 10 }
 
 /**
@@ -68,10 +68,10 @@ const newSelectedElement = (ev) => {
  * @param {object} data - object containing name, url, tag, and image.url.
  */
 const startNewApp = (data) => {
-  // console.log(`startNewApp data: ${JSON.stringify(data)}`)
+  console.log('startNewApp data: ', data)
   try {
     const parent = document.querySelector('#appArea')
-    import(data.url/* @vite-ignore */) // Dynamic import of applications
+    import(data.url) // Dynamic import of applications
     // console.log(`data.tag: ${data.tag}`)
     const container = document.createElement('app-container')
     container.setAttribute('app_name', data.name)
