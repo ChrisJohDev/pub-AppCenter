@@ -148,6 +148,8 @@ welcomeTemplate.innerHTML = `
 const apiKey = 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd'
 const socketURL = 'wss://courselab.lnu.se/message-app/socket'
 const storageName = 'chatterbox-LNU-B3-2023'
+const storageChat = 'chatterbox-LNU-B3-2023-messages'
+const maxMessages = 20
 
 customElements.define('chat-app',
   /**
@@ -180,12 +182,31 @@ customElements.define('chat-app',
       this.style.height = `${parent.clientHeight}px`
       if (this.#username) this.#setUpConnectedCallback()
       else this.#setUpWelcomeCallback()
+      const data = JSON.parse(localStorage.getItem(storageChat))
+      console.log('[chatApp] connectedCallback data', data)
+      const chat = this.shadowRoot.querySelector('#chat')
+
+      for (let i = data.messages.length - 1; i > -1; i--) {
+        const div = document.createElement('div')
+        console.log('[chatApp] connectedCallback message', data.messages[i])
+        div.innerHTML = data.messages[i].innerHTML
+        div.setAttribute('style', data.messages[i].style)
+        chat.appendChild(div)
+      }
     }
 
     /**
      *
      */
     disconnectedCallback() {
+      const nodes = this.shadowRoot.querySelector('#chat').childNodes
+      const messages = []
+      for (let i = nodes.length - 1; i > nodes.length - maxMessages - 1; i--) {
+        const style = nodes[i].getAttribute('style')
+        messages.push({ style, innerHTML: nodes[i].innerHTML })
+      }
+      const data = {id: this.#chatId, messages}
+      localStorage.setItem(storageChat, JSON.stringify(data))
       this.#socket.close()
     }
 

@@ -3,7 +3,7 @@
 // Adapted by Chris Johannesson
 
 const cacheId = 'pwa4EK9i'
-const VERSION = 'v0.1.17'
+const VERSION = 'v0.1.28'
 const cacheName = cacheId + '-B3SW-' + VERSION
 // let count = 0
 const preCacheList = [
