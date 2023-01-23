@@ -14,12 +14,38 @@ template.innerHTML = `
   }
   :host{
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 684px;
+    height: 576px;
     flex: 1;
     background-color: rgb(50, 50, 50);
   }
 </style>
-<div class="wrapper">
-</div>
 `
+
+customElements.define('sokoban-app',
+
+  /**
+   *
+   */
+  class extends HTMLElement {
+    /**
+     *
+     */
+    constructor () {
+      super()
+
+      this.attachShadow({ mode: 'open' })
+      this.shadowRoot.appendChild(template.content.cloneNode())
+    }
+
+    /**
+     *
+     */
+    connectedCallback () {}
+
+    /**
+     *
+     */
+    disconnectedCallback () {}
+  }
+)
