@@ -20,6 +20,7 @@ template.innerHTML = `
     background-color: rgb(50, 50, 50);
   }
 </style>
+<div id="game-content" class="game-board">Sokoban</div>
 `
 
 customElements.define('sokoban-app',
@@ -35,7 +36,7 @@ customElements.define('sokoban-app',
       super()
 
       this.attachShadow({ mode: 'open' })
-      this.shadowRoot.appendChild(template.content.cloneNode())
+      this.shadowRoot.appendChild(template.content.cloneNode(true))
     }
 
     /**
