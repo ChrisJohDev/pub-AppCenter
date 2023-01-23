@@ -272,8 +272,8 @@ customElements.define('exchange-app',
           p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate.rate}`
 
 
-          console.log('base:', selectBase)
-          console.log('rate', rate)
+          // console.log('base:', selectBase)
+          console.log('[exchangeApp] getPair rate:', rate)
           div.appendChild(p)
           if (this.shadowRoot.querySelector('#currency-rate')) {
             this.shadowRoot.querySelector('.display-area')
@@ -398,15 +398,12 @@ customElements.define('exchange-app',
           section.setAttribute('style', 'display: flex; gap: 0.3rem; justify-content: space-evenly; align-items: flex-start; flex-wrap: wrap; overflow: auto;')
           section.setAttribute('id', 'latest-section')
 
-          for (const option of selectQuotes.selectedOptions) {
-            const quote = JSON.parse(option.value)
-            const rate = rates[quote[0]]
+          console.log('[exchangeApp] getLatest ev submit rates:', rates)
+
+          if (rates.noData) {
             const div = document.createElement('div')
             div.setAttribute('id', 'currency-rate')
             const p = document.createElement('p')
-            const span1 = document.createElement('span')
-            span1.setAttribute('title', base[1])
-            span1.textContent = base[0]
             p.setAttribute('style', `
               border: 2px solid gold; 
               padding: 0.3rem 0.5rem; 
@@ -415,9 +412,31 @@ customElements.define('exchange-app',
             `)
             p.style.textAlign = 'center'
             p.style.marginTop = '1rem'
-            p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate}`
+            p.textContent = rates.rate
             div.appendChild(p)
             section.appendChild(div)
+          } else {
+            for (const option of selectQuotes.selectedOptions) {
+              const quote = JSON.parse(option.value)
+              const rate = rates[quote[0]]
+              const div = document.createElement('div')
+              div.setAttribute('id', 'currency-rate')
+              const p = document.createElement('p')
+              const span1 = document.createElement('span')
+              span1.setAttribute('title', base[1])
+              span1.textContent = base[0]
+              p.setAttribute('style', `
+              border: 2px solid gold; 
+              padding: 0.3rem 0.5rem; 
+              border-radius: 8px;
+              background-color: rgb(75, 75, 75);
+            `)
+              p.style.textAlign = 'center'
+              p.style.marginTop = '1rem'
+              p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate}`
+              div.appendChild(p)
+              section.appendChild(div)
+            }
           }
           dataArea.append(section)
         } else {

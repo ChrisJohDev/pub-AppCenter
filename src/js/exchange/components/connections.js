@@ -84,6 +84,8 @@ export const getLatest = async (currency) => {
         const data = await fetch(baseUrl + `/latest/${currency}`)
         const json = await data.json()
 
+        console.log('[connections] getLatest json:', json)
+
         resolve(json.rates)
       } catch (err) {
         console.error('latestRates encountered an error.', err)

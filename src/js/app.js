@@ -62,6 +62,31 @@ const newSelectedElement = (ev) => {
   })
 }
 
+const launchApp = (failedImport, data) => {
+  try {
+    const parent = document.querySelector('#appArea')
+    // console.log(`data.tag: ${data.tag}`)
+    const container = document.createElement('app-container')
+    container.setAttribute('app_name', data.name)
+    const app = !failedImport
+      ? document.createElement(data.tag)
+      : document.createElement('div')
+    container.setAttribute('tabindex', '0')
+    container.addEventListener('new-select', (ev) => {
+      newSelectedElement(ev)
+    })
+    if (failedImport) {
+      app.setAttribute('style', 'flex:1; height: calc(300px - 1.5rem); background-color: grey;')
+      app.innerHTML = `<h1 style='text-align: center; margin-top:2rem; color: red;'>App Failure!!</h1><p style='color: white; margin-top:1rem; text-align: center;'>Failed to load ${data.name}.</p>`
+    }
+    container.shadowRoot.querySelector('.wrapper > .body').appendChild(app)
+    document.querySelector('#appArea').appendChild(container)
+    moveElement(container, parent) // Add movement capability for app
+  } catch (err) {
+    console.error('[app] launchApp try - catch: ', err)
+  }
+}
+
 /**
  * Launches a new app and appends it to the content in #appArea.
  *
@@ -69,23 +94,15 @@ const newSelectedElement = (ev) => {
  */
 const startNewApp = (data) => {
   console.log('startNewApp data: ', data)
-  try {
-    const parent = document.querySelector('#appArea')
-    import(data.url) // Dynamic import of applications
-    // console.log(`data.tag: ${data.tag}`)
-    const container = document.createElement('app-container')
-    container.setAttribute('app_name', data.name)
-    const app = document.createElement(data.tag)
-    container.setAttribute('tabindex', '0')
-    container.addEventListener('new-select', (ev) => {
-      newSelectedElement(ev)
+
+  import(data.url) // Dynamic import of applications
+    .then(() => {
+      launchApp(false, data)
     })
-    container.shadowRoot.querySelector('.wrapper > .body').appendChild(app)
-    document.querySelector('#appArea').appendChild(container)
-    moveElement(container, parent) // Add movement capability for app
-  } catch (err) {
-    console.error(`startNewApp: ${err}`)
-  }
+    .catch((err) => {
+      launchApp(true, data)
+      console.error('[app] startNewApp import catch: ', err)
+    })
 }
 
 /**

@@ -3,7 +3,7 @@
 // Adapted by Chris Johannesson
 
 const cacheId = 'pwa4EK9i'
-const VERSION = 'v0.1.5'
+const VERSION = 'v0.1.17'
 const cacheName = cacheId + '-B3SW-' + VERSION
 // let count = 0
 const preCacheList = [
@@ -89,15 +89,16 @@ self.addEventListener('message', (ev) => {
 const respondAndCache = async (ev) => {
   console.log('\n*** [xxServiceWorker] respondAndCache():', ev)
   const url = new URL(ev.request.url)
+
+  // Strategy Netwoork first and cache, fallback cache.
   ev.respondWith(
     caches.open(cacheName)
       .then(async (cache) => {
+        // Get resource from network
         return fetch(ev.request.url)
           .then((fetchedResponse) => {
-            const response = fetchedResponse.clone()
-            const data = response.text()
             const r = fetchedResponse.clone()
-            console.log('[ServiceWorker] respondAndCache url, data', ev.request.url, data)
+            // console.log('[ServiceWorker] respondAndCache url, data', ev.request.url, data)
             cache.put(url.pathname, r)
             return fetchedResponse
           }).catch((err) => {
@@ -109,14 +110,15 @@ const respondAndCache = async (ev) => {
                   console.log('[ServiceWorker] respondAndCache return cached:', url.pathname)
                   return response
                 } else if (url.pathname.includes('api/pair')) {
-                  console.log('[ServiceWorker] respondAndCache not in cache url', url.pathname)
+                  // console.log('[ServiceWorker] respondAndCache not in cache url', url.pathname)
                   const options = {status: 200, statusText: 'OK-cache'}
                   const res = new Response('{ "rate": "Offline rate is not available" }', options)
                   return res
                 } else if (url.pathname.includes('api/latest')) {
                   console.log('[ServiceWorker] respondAndCache not in cache latest url', url.pathname)
                   const options = { status: 200, statusText: 'OK-cache' }
-                  const res = new Response('{ "rate": "Offline rates are not available." }', options)
+                  const res = new Response('{"rates":{ "noData": true, "rate": "Offline rates are not available." }}', options)
+                  // console.log('[ServiceWorker] respondAndCache not in cache latest res', res)
                   return res
                 } else {
                   console.error('[ServiceWorker] respondAndCache.\nRequested data not available in cache.\nurl', url, err)
@@ -180,12 +182,17 @@ const noCors = (ev) => {
 const withCors = (ev) => {
   const url = new URL(ev.request.url)
   console.log('\n*** [xServiceWorker] withCors() pathname:', url.pathname)
-  if (url.pathname.startsWith('/@')) {
-    // if (url.pathname.startsWith('/@vite') || url.pathname.startsWith('/@fs')) return
-    respondNoCache(ev)
-  } else {
-    respondAndCache(ev)
-  }
+  respondAndCache(ev)
+  // Not caching the annoying Vite client prevents off-line functionality.
+  // NOTE: In the future setup a test website locally to avoid all these annnoying
+  //       problems with Vite.
+
+  // if (url.pathname.startsWith('/@')) {
+  //   // if (url.pathname.startsWith('/@vite') || url.pathname.startsWith('/@fs')) return
+  //   respondNoCache(ev)
+  // } else {
+  //   respondAndCache(ev)
+  // }
 }
 
 // NOTE:
@@ -194,6 +201,7 @@ const withCors = (ev) => {
 // 2) no-cors => check if protocol is "chrome-extension" network do not cache
 //                     else network then cache
 // 3) cors => all js files. Check if pathname starts with "/@" network do not cache else network then cache
+//            We ended up cacheing files with /@ too due to the annoying Vite.
 //
 self.addEventListener('fetch', (ev) => {
   // console.log('\n*** [ServiceWorker] fetch event mode:', ev.request.mode)
