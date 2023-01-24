@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * Initializes the application and registers the service worker.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -9,7 +9,7 @@ import app from './js/app.js'
 import './sw.js'
 
 /**
- *
+ * Registering the serviceworker.
  */
 const register = () => {
   navigator.serviceWorker.register('./sw.js')
@@ -21,15 +21,9 @@ const register = () => {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', (ev) => {
-    console.log('\n*** [index.js] message: ', ev)
-    if (ev.data === 'registerNew') register()
-  })
   window.addEventListener('load', () => {
     register()
   })
-
-  // navigator.serviceWorker.controller.postMessage('getVersion')
 } else {
   console.error('[index.js] No support for ServiceWorkers!')
 }

@@ -4,7 +4,6 @@
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
  */
-import './components/layout'
 import './components/footer'
 import './components/appBay'
 import './components/appContainer'
@@ -46,9 +45,6 @@ const games = [
   }
 ]
 
-const tabIndexCounter = 1
-// const appStartPos = { top: 10, left: 10 }
-
 /**
  * When a new app-container is selected all apps z-index
  * properties are set to the new order.
@@ -62,6 +58,13 @@ const newSelectedElement = (ev) => {
   })
 }
 
+/**
+ * Launches the sub-applications.
+ * If app failed to load we will provide a default message.
+ *
+ * @param {boolean} failedImport - indicates if the import was succesful or not.
+ * @param {object} data - object containing name, url, tag, and image.url.
+ */
 const launchApp = (failedImport, data) => {
   try {
     const parent = document.querySelector('#appArea')
@@ -75,6 +78,7 @@ const launchApp = (failedImport, data) => {
     container.addEventListener('new-select', (ev) => {
       newSelectedElement(ev)
     })
+    // Set the attributes for the fallback when offline and app not cached.
     if (failedImport) {
       app.setAttribute('style', 'flex:1; height: calc(300px - 1.5rem); background-color: grey;')
       app.innerHTML = `<h1 style='text-align: center; margin-top:2rem; color: red;'>App Failure!!</h1><p style='color: white; margin-top:1rem; text-align: center;'>Failed to load ${data.name}.</p>`
@@ -93,7 +97,7 @@ const launchApp = (failedImport, data) => {
  * @param {object} data - object containing name, url, tag, and image.url.
  */
 const startNewApp = (data) => {
-  console.log('startNewApp data: ', data)
+  // console.log('startNewApp data: ', data)
 
   import(data.url) // Dynamic import of applications
     .then(() => {
@@ -121,19 +125,6 @@ const addAppBay = () => {
 }
 
 /**
- *
- */
-// const sizeAppArea = () => {
-//   const parent = document.querySelector('main')
-//   const appArea = parent.querySelector('#appArea')
-//   const bayHeight = parent.querySelector('#bay').offsetHeight
-//   const parentHeight = parent.offsetHeight
-//   console.log(`size:\nbayHeight: ${bayHeight}\nparentHeight: ${parentHeight}\nappArea.height: ${appArea.offsetHeight}`)
-//   appArea.style.height = (parentHeight - bayHeight) + 'px'
-//   console.log(`new size:\nbayHeight: ${bayHeight}\nparentHeight: ${parentHeight}\nappArea.height: ${appArea.offsetHeight}`)
-// }
-
-/**
  * The application.
  * Starting point for the application.
  */
@@ -145,4 +136,5 @@ const app = () => {
 
   addAppBay()
 }
+
 export default app

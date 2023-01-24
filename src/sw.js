@@ -1,11 +1,17 @@
 
-// Code stolen from https://hellonehha.medium.com/pwa-series-service-workers-cookbook-part-1-c89fa0d547a7
-// Adapted by Chris Johannesson
-
+/**
+ * The service worker.
+ *
+ * @author Chris Johannesson <chris@chrisjohannesson.com>
+ * @version 1.0.0
+ *
+ * Code and strategy ideas stolen from https://developer.chrome.com/docs/workbox/caching-strategies-overview/
+ * Adapted by Chris Johannesson
+ */
 const cacheId = 'pwa4EK9i'
-const VERSION = 'v0.1.31'
+const VERSION = 'v0.1.38'
 const cacheName = cacheId + '-B3SW-' + VERSION
-// let count = 0
+
 const preCacheList = [
   '/index.js',
   '/manifest.webmanifest',
@@ -51,19 +57,23 @@ self.addEventListener('install', (ev) => {
 })
 
 // ServiceWorker activation
+// Clear old caches and update to the latest version.
 self.addEventListener('activate', (ev) => {
-  console.log(`\n*** [ServiceWorker] Activating: ${cacheName}`)
+  // console.log(`\n*** [ServiceWorker] Activating: ${cacheName}`)
   ev.waitUntil(caches.keys()
     .then((keyList) => {
       keyList.forEach((key) => {
-        console.log('key:', key)
+        console.log('[ServiceWorker] key:', key)
+        // If the cachId is in the key but not the same version we want to delete the old version.
         if (key.indexOf(VERSION) < 0 && key.indexOf(cacheId) > -1) {
-          console.log('[ServiceWorker] Removing old cache', key)
+          // console.log('[ServiceWorker] Removing old cache', key)
           caches.delete(key)
+          // Re-fetch the resource associated with the key
           fetch(key)
             .then(res => {
               caches.open(cacheName)
                 .then(cache => {
+                  // Put the key and the re-fetched resource in the new cache
                   cache.put(key, res)
                 })
             })
@@ -71,20 +81,18 @@ self.addEventListener('activate', (ev) => {
       })
     })
   )
+  // Claim all clients to control them
   return self.clients.claim()
 })
 
-// Respond to query about version of current service worker.
-self.addEventListener('message', (ev) => {
-  console.log('[ServiceWorker] ServiceWorker version outdated.', VERSION, ev.data)
-  if (ev.data !== VERSION) {
-    ev.source.postMessage('registerNew')
-  }
-})
-
 /**
+ * Part of the Network first strategy.
+ * If network available it gets the resource from the Network
+ * and then save it to cache.
+ * if not it will try to serve it from the cache.
  *
- * @param ev
+ * @param {Event} ev - really a FetchEvent with data from the fetch eventlistener.
+ * The linting doesn't accept the {FetchEvent} declaration.
  */
 const respondAndCache = async (ev) => {
   console.log('\n*** [xxServiceWorker] respondAndCache():', ev)
@@ -111,7 +119,7 @@ const respondAndCache = async (ev) => {
                   return response
                 } else if (url.pathname.includes('api/pair')) {
                   // console.log('[ServiceWorker] respondAndCache not in cache url', url.pathname)
-                  const options = {status: 200, statusText: 'OK-cache'}
+                  const options = { status: 200, statusText: 'OK-cache' }
                   const res = new Response('{ "rate": "Offline rate is not available" }', options)
                   return res
                 } else if (url.pathname.includes('api/latest')) {
@@ -132,18 +140,19 @@ const respondAndCache = async (ev) => {
 }
 
 /**
+ * Part of the Network first strategy.
+ * If network available it gets the resource from the network
+ * it doesn't cache or serve from cache.
  *
- * @param ev
+ * @param {Event} ev - really a FetchEvent with data from the fetch eventlistener.
+ * The linting doesn't accept the {FetchEvent} declaration.
  */
 const respondNoCache = (ev) => {
-  console.log('\n*** [xxServiceWorker] respondNoCache():', ev)
+  // console.log('\n*** [xxServiceWorker] respondNoCache():', ev)
   ev.respondWith(caches.open(cacheName)
     .then((cache) => {
       return fetch(ev.request.url)
         .then((fetchedResponse) => {
-          const response = fetchedResponse.clone()
-          const data = response.text()
-          console.log('[ServiceWorker] respondNoCache url, data', ev.request.url, data)
           return fetchedResponse
         }).catch((err) => {
           console.error('No network access', err)
@@ -153,8 +162,10 @@ const respondNoCache = (ev) => {
 }
 
 /**
+ * Handling  mode navigation requests.
  *
- * @param ev
+ * @param {Event} ev - really a FetchEvent with data from the fetch eventlistener.
+ * The linting doesn't accept the {FetchEvent} declaration.
  */
 const navigation = (ev) => {
   console.log('\n*** [xServiceWorker] navigation():')
@@ -162,8 +173,10 @@ const navigation = (ev) => {
 }
 
 /**
+ * Handling mode no-cors requests.
  *
- * @param ev
+ * @param {Event} ev - really a FetchEvent with data from the fetch eventlistener.
+ * The linting doesn't accept the {FetchEvent} declaration.
  */
 const noCors = (ev) => {
   const url = new URL(ev.request.url)
@@ -176,8 +189,10 @@ const noCors = (ev) => {
 }
 
 /**
+ * Handling mode cors requests.
  *
- * @param ev
+ * @param {Event} ev - really a FetchEvent with data from the fetch eventlistener.
+ * The linting doesn't accept the {FetchEvent} declaration.
  */
 const withCors = (ev) => {
   const url = new URL(ev.request.url)
@@ -186,13 +201,6 @@ const withCors = (ev) => {
   // Not caching the annoying Vite client prevents off-line functionality.
   // NOTE: In the future setup a test website locally to avoid all these annnoying
   //       problems with Vite.
-
-  // if (url.pathname.startsWith('/@')) {
-  //   // if (url.pathname.startsWith('/@vite') || url.pathname.startsWith('/@fs')) return
-  //   respondNoCache(ev)
-  // } else {
-  //   respondAndCache(ev)
-  // }
 }
 
 // NOTE:
@@ -204,106 +212,18 @@ const withCors = (ev) => {
 //            We ended up cacheing files with /@ too due to the annoying Vite.
 //
 self.addEventListener('fetch', (ev) => {
-  // console.log('\n*** [ServiceWorker] fetch event mode:', ev.request.mode)
-  // const url = new URL(ev.request.url)
   const url = new URL(ev.request.url)
   console.log('\n*** [ServiceWorker] fetch ev, url:', ev, url)
-  console.log('\n*** [ServiceWorker] fetch request mode:', typeof ev.request.mode, ev.request.mode)
 
+  // Allow WebSocket connections to pass through the service worker
   if (ev.request.headers.get('upgrade') === 'websocket') {
-    // Allow WebSocket connections to pass through the service worker
     ev.respondWith(fetch(ev.request))
   } else {
+    // Handling the request modes.
     if (ev.request.mode === 'navigate') {
       console.log('\n*** [ServiceWorker] if navigate:')
       navigation(ev)
     } else if (ev.request.mode === 'no-cors') noCors(ev)
     else if (ev.request.mode === 'cors') withCors(ev)
   }
-
-  // else respondNoCache(ev)
 })
-
-// self.addEventListener('fetch', (ev) => {
-//   console.log('\n*** [ServiceWorker] fetch event:', ev)
-//   // console.log('\n*** [ServiceWorker] fetch request:', ev.request)
-//   // console.log('\n*** [ServiceWorker] fetch request url:', ev.request.url)
-//   // console.log('\n*** [ServiceWorker] fetch self.location.origin:', self.location.origin)
-//   const url = new URL(ev.request.url)
-//   const isCached = CacheStorage.open(cacheName).keys()
-
-//   console.log('\n*** [ServiceWorker] fetch url:', url)
-
-//   if (isCached) {
-//   // if (ev.request.url === self.location.origin || ev.request.url === self.location.origin + '/') {
-//     console.log('\n*** [ServiceWorker] fetch:', `\nrequest.url: ${ev.request.url}\nlocation.origin: ${self.location.origin}`)
-//     console.log('\n*** cache index.html', caches.match('/index.html'))
-//     ev.respondWith(caches.match('/index.html'))
-//   } else {
-//     ev.respondWith(
-//       caches.match(ev.request)
-//         .then((res) => {
-//           if (res) {
-//             console.log('\n*** [ServiceWorker] fetch cache res:', res)
-//             return res
-//           }
-//           console.log('\n*** [ServiceWorker] fetch no-cache request:', ev.request)
-//           fetch(ev.request)
-//             .then(response => {
-//               caches.open(cacheName)
-//                 .then((cache) => {
-//                   const clone = response.clone()
-//                   console.log('\n*** [ServiceWorker] fetch no-cache clone:', clone.clone())
-//                   cache.add(url.pathname, clone)
-//                 })
-//               return response
-//             })
-//         })
-//     )
-//   }
-// })
-
-// Listen for fetch requests.
-// self.addEventListener('fetch', (ev) => {
-//   console.log(`[ServiceWorker] fetch: ${cacheName}, count: ${count}`)
-//   const req = ev.request
-
-//   count++
-
-//   if (req.url.endsWith('.css')) {
-//     ev.respondWith(
-//       caches.match(req)
-//         .then((res) => {
-//           if (res) {
-//             console.log('[ServiceWorker] fetch res b4:', res)
-//             // // clone the response to change the headers
-//             // const newRes = res.clone()
-//             // // change the headers
-//             // newRes.headers.set('Content-Type', 'text/css')
-//             // console.log(`[ServiceWorker] fetch newRes: ${JSON.stringify(newRes)}`, newRes)
-//             res.headers.set('Content-Type', 'text/css')
-//             console.log('[ServiceWorker] fetch res after:', res)
-//             return res
-//           }
-//           // if the file is not in the cache return the fetch request
-//           return fetch(req)
-//         })
-//     )
-//   } else {
-//     ev.respondWith(caches.match(req)
-//       .then((res) => {
-//         if (res) {
-//           console.log('[ServiceWorker] fetch cache res:', res)
-//           return res
-//         }
-//         console.log('[ServiceWorker] fetch no-cache req:', req)
-//         return fetch(req)
-//       })
-//     )
-//   }
-// })
-
-// fetch('/css/styles.css')
-//   .then(response => {
-//     console.log(response.headers.get('content-type'))
-//   })

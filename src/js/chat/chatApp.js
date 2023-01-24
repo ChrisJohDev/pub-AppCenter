@@ -9,8 +9,6 @@
 import { createPopup } from '@picmo/popup-picker'
 import { v4 } from 'uuid'
 
-
-
 const template = document.createElement('template')
 template.innerHTML = `
   <style>
@@ -153,21 +151,23 @@ const maxMessages = 20
 
 customElements.define('chat-app',
   /**
+   * A class that represents the chat app component.
    *
+   * @augments {HTMLElement}
    */
   class extends HTMLElement {
     #socket
     #messageObj
     #heartbeatObj
     #username
-    emojiPicker
+    // emojiPicker
     #emojiTriggerElmnt
     #emojiRefElmnt
     #chatId
     /**
      * Class contructor function.
      */
-    constructor() {
+    constructor () {
       super()
       this.#chatId = v4()
       this.attachShadow({ mode: 'open' })
@@ -175,9 +175,9 @@ customElements.define('chat-app',
     }
 
     /**
-     *
+     * Called when connected to the DOM.
      */
-    connectedCallback() {
+    connectedCallback () {
       const parent = this.parentElement
       this.style.height = `${parent.clientHeight}px`
       if (this.#username) this.#setUpConnectedCallback()
@@ -196,21 +196,27 @@ customElements.define('chat-app',
     }
 
     /**
-     *
+     * Called when disconnected from the DOM.
      */
-    disconnectedCallback() {
+    disconnectedCallback () {
       const nodes = this.shadowRoot.querySelector('#chat').childNodes
       const messages = []
-      for (let i = nodes.length - 1; i > nodes.length - maxMessages - 1; i--) {
+      for (let i = nodes.length - 1; (i > nodes.length - maxMessages - 1) && i > -1; i--) {
         const style = nodes[i].getAttribute('style')
         messages.push({ style, innerHTML: nodes[i].innerHTML })
       }
-      const data = {id: this.#chatId, messages}
+      const data = { id: this.#chatId, messages }
       localStorage.setItem(storageChat, JSON.stringify(data))
       this.#socket.close()
     }
 
-    #deployNotification(data) {
+    /**
+     * Deploys the server notification message on the screen
+     * then removes it after 1.5 sec.
+     *
+     * @param {object} data - contains the text to be dislpayed.
+     */
+    #deployNotification (data) {
       // console.log('deployNotification:', data)
       const page = this.shadowRoot.querySelector('.wrapper')
       const wrapper = document.createElement('div')
@@ -245,12 +251,14 @@ customElements.define('chat-app',
     }
 
     /**
+     * Deploys the mesage.
      *
-     * @param data
+     * @param {string} inData - stringified JSON object data.
      */
-    #deployMessage(inData) {
+    #deployMessage (inData) {
       const data = JSON.parse(inData)
       const chat = this.shadowRoot.querySelector('#chat')
+      // We avoid displaying hearbeat and notifications in the chat.
       if (data.type !== 'heartbeat' && data.type !== 'notification') {
         const div = document.createElement('div')
         const p = document.createElement('p')
@@ -281,9 +289,9 @@ customElements.define('chat-app',
     }
 
     /**
-     *
+     * Loads stored messages from local storage.
      */
-    #loadChat() {
+    #loadChat () {
       const data = localStorage.getItem(storageName)
       // console.log('data', data)
       this.#username = data && JSON.parse(data).name
@@ -301,9 +309,9 @@ customElements.define('chat-app',
         }
 
         // Connection opened
-        this.#socket.addEventListener('open', (event) => {
-          // console.log('WebSocket connection opened.')
-        })
+        // this.#socket.addEventListener('open', (event) => {
+        //   // console.log('WebSocket connection opened.')
+        // })
 
         // Listen for messages
         this.#socket.addEventListener('message', (ev) => {
@@ -315,9 +323,9 @@ customElements.define('chat-app',
     }
 
     /**
-     *
+     * Used to get the user's username, then stores i in localStorage.
      */
-    #setUpWelcomeCallback() {
+    #setUpWelcomeCallback () {
       const form = this.shadowRoot.querySelector('form')
       form.addEventListener('submit', (ev) => {
         ev.preventDefault()
@@ -329,10 +337,19 @@ customElements.define('chat-app',
     }
 
     /**
+     * Sends message to the chat server.
      *
-     * @param message
+     * @param {object} message - username and data.
+     * {
+     * channel,
+     * chatId,
+     * data,
+     * key,
+     * type,
+     * username
+     * }
      */
-    #sendMessage(message) {
+    #sendMessage (message) {
       try {
         this.#validate(message)
 
@@ -349,9 +366,9 @@ customElements.define('chat-app',
     }
 
     /**
-     *
+     * Sets up the connected callback when the user has a uernam.
      */
-    #setUpConnectedCallback() {
+    #setUpConnectedCallback () {
       this.#emojiTriggerElmnt = this.shadowRoot.querySelector('#selection-emoji')
       this.#emojiRefElmnt = this.shadowRoot.querySelector('form')
 
@@ -364,7 +381,6 @@ customElements.define('chat-app',
           showCloseButton: false,
           className: 'picker'
         })
-      // picker.style.zIndex = 10500
 
       // Send message when arrow is clicked
       this.shadowRoot.querySelector('#arrow').addEventListener('click', (ev) => {
@@ -372,6 +388,7 @@ customElements.define('chat-app',
         const message = this.shadowRoot.querySelector('#message').value
         if (message) this.#sendMessage(message)
       })
+      // Send message when enter is pressed
       this.shadowRoot.querySelector('#message').addEventListener('keydown', (ev) => {
         if (ev.code === 'Enter') {
           ev.preventDefault()
@@ -394,13 +411,13 @@ customElements.define('chat-app',
         this.shadowRoot.querySelector('#message').focus()
       })
     }
-    
 
     /**
+     * Simple validation for the user input string.
      *
-     * @param message
+     * @param {string} message - the message to check.
      */
-    #validate(message = '') {
+    #validate (message = '') {
       if (message.startsWith('<script')) throw new Error('Messages can\'t contain script tags.')
     }
   }

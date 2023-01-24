@@ -5,8 +5,6 @@
  * @version 1.1.0
  */
 
-import { createPopup } from '@picmo/popup-picker'
-
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -31,7 +29,8 @@ template.innerHTML = `
 
 customElements.define('app-bay',
   /**
-   *
+   * The appBay class.
+   * Creates a bay to display icons for all games available.
    */
   class extends HTMLElement {
     /**
