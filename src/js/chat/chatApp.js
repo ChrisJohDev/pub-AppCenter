@@ -387,6 +387,15 @@ customElements.define('chat-app',
         ev.preventDefault()
         const message = this.shadowRoot.querySelector('#message').value
         if (message) this.#sendMessage(message)
+        this.shadowRoot.querySelector('#message').focus()
+      })
+      this.shadowRoot.querySelector('#arrow').addEventListener('keydown', (ev) => {
+        ev.preventDefault()
+        if (ev.code === 'Enter') {
+          const message = this.shadowRoot.querySelector('#message').value
+          if (message) this.#sendMessage(message)
+          this.shadowRoot.querySelector('#message').focus()
+        }
       })
       // Send message when enter is pressed
       this.shadowRoot.querySelector('#message').addEventListener('keydown', (ev) => {
@@ -394,6 +403,7 @@ customElements.define('chat-app',
           ev.preventDefault()
 
           this.#sendMessage(this.shadowRoot.querySelector('#message').value)
+          this.shadowRoot.querySelector('#message').focus()
         }
       })
 
@@ -404,6 +414,16 @@ customElements.define('chat-app',
           // console.log('picker', picker.popupEl.style.zIndex)
         }, 10)
         // picker.toggle()
+      })
+      this.#emojiTriggerElmnt.addEventListener('keydown', (ev) => {
+        if (ev.code === 'Enter') {
+          setTimeout(() => {
+            picker.toggle()
+            picker.popupEl.style.zIndex = 10500
+            // console.log('picker', picker.popupEl.style.zIndex)
+          }, 10)
+          // picker.toggle()
+        }
       })
       picker.addEventListener('emoji:select', (emoji) => {
         // console.log('emoji label:', emoji.label)

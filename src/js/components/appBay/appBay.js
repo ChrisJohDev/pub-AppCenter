@@ -47,6 +47,7 @@ customElements.define('app-bay',
      */
     connectedCallback () {
       // console.log(`app-bay data: ${this.data}`)
+      let tabindexCounter = 0
       const wrapper = this.shadowRoot.querySelector('.bay-wrapper')
       wrapper.style.gridTemplateColumns = `repeat(${this.data.length}, max-content)`
       this.data.forEach(game => {
@@ -56,7 +57,15 @@ customElements.define('app-bay',
           const runApp = new CustomEvent('run-app', { detail: game })
           this.dispatchEvent(runApp)
         })
+        div.addEventListener('keydown', (ev) => {
+          // console.log(`event target: ${JSON.stringify(game)}`)
+          if (ev.code === 'Space' || ev.code === 'Enter') {
+            const runApp = new CustomEvent('run-app', { detail: game })
+            this.dispatchEvent(runApp)
+          }
+        })
         div.setAttribute('style', 'width:max-content;box-sizing:border-box; cursor:pointer;')
+        div.setAttribute('tabindex', tabindexCounter++)
 
         const img = document.createElement('img')
         img.setAttribute('src', game.image.url)

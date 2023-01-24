@@ -296,8 +296,7 @@ customElements.define('game-board',
             if (ev.originalTarget) {
               ev.originalTarget.shadowRoot.querySelector('.container').click()
             } else {
-              ev.path[0].shadowRoot.querySelector('.container').click()
-              ev.path[0].focus()
+              ev.target.shadowRoot.querySelector('.container').click()
             }
           }
         })
