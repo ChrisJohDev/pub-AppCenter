@@ -36,7 +36,7 @@ class Footer extends HTMLElement {
   /**
    * Class contructor.
    */
-  constructor() {
+  constructor () {
     super()
 
     this.#shadow = this.attachShadow({

@@ -34,14 +34,6 @@ const games = [
     image: {
       url: './js/memory/images/game.png'
     }
-  },
-  {
-    name: 'Sokoban',
-    url: './sokoban',
-    tag: 'sokoban-app',
-    image: {
-      url: './js/sokoban/images/game.jpg'
-    }
   }
 ]
 
@@ -49,7 +41,7 @@ const games = [
  * When a new app-container is selected all apps z-index
  * properties are set to the new order.
  *
- * @param {HTMLEvent} ev - the event object.
+ * @param {Event} ev - the event object.
  */
 const newSelectedElement = (ev) => {
   const apps = document.querySelector('#appArea').childNodes
@@ -138,3 +130,14 @@ const app = () => {
 }
 
 export default app
+
+// Removed from app temporarily, due to time constraint.
+// ,
+// {
+//   name: 'Sokoban',
+//     url: './sokoban',
+//       tag: 'sokoban-app',
+//         image: {
+//     url: './js/sokoban/images/game.jpg'
+//   }
+// }
