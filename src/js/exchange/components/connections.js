@@ -1,10 +1,11 @@
 /**
- * The main script file of the application.
+ * Connection functionality for the exchangeApp.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
  */
 
+// Base url to our exchange relay-server.
 const baseUrl = 'https://cscloud7-176.lnu.se/exchange/api'
 
 /**

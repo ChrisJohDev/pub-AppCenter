@@ -10,8 +10,6 @@ import './components/gameBoard.js'
 import './components/results.js'
 import '../components/timer'
 
-const nameStorageName = 'memoryGameB3LNU-playerName'
-
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
@@ -50,6 +48,8 @@ template.innerHTML = `
 </div>
 `
 
+const nameStorageName = 'memoryGameB3LNU-playerName'
+
 customElements.define('memory-app',
   /**
    * Custom element that represents the main memory game app.
@@ -83,6 +83,11 @@ customElements.define('memory-app',
      */
     #timeScore
 
+    /**
+     * The name used in localStorage to store the player name.
+     *
+     * @private
+     */
     #nameStorage
 
     /**
@@ -208,7 +213,7 @@ customElements.define('memory-app',
      * @param {object} data - The data object containing the game details.
      * @private
      */
-    #loadGame(data) {
+    #loadGame (data) {
       this.#setName(data.name)
       const memory = document.createElement('game-board')
       console.log('memoryApp loadGame data:', data)

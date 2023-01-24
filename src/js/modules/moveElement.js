@@ -38,8 +38,10 @@ const moveElement = (elmnt, parentNode) => {
   }
 
   /**
+   * Returns the max value in the direction requested.
    *
-   * @param direction
+   * @param {string} direction - teh direction to measure.
+   * @returns {number} - the max value.
    */
   const testMax = (direction) => {
     let counter = 0; let test
@@ -70,8 +72,11 @@ const moveElement = (elmnt, parentNode) => {
   }
 
   /**
+   * Test if we are outside the boudaries.
+   * Used in tesMax().
    *
-   * @param data
+   * @param {object} data - data object {height, width, offsetTop, offestWidth}
+   * @returns {object} - data object {ok, rightOutside, bottomOutside}
    */
   const testPosition = (data) => {
     let ok = false; let rightOutside = false; let bottomOutside = false
@@ -87,16 +92,22 @@ const moveElement = (elmnt, parentNode) => {
   }
 
   /**
+   * OLD function not presently used.
    *
-   * @param direction
-   * @param parentOffset
-   * @param openWindows
-   * @param data
+   * @param {string} direction - the direction to check.
+   * @param {number} parentOffset - the parents offest value.
+   * @param {number} openWindows - the number of currently open windows.
+   * @param {object} data - a data object.
+   * @returns {number} - the offset.
    */
+  // eslint-disable-next-line no-unused-vars
   const getCorrection = (direction, parentOffset, openWindows, data) => {
     let test, result
+    // eslint-disable-next-line no-unused-vars
     const maxX = testMax('horrizontal')
+    // eslint-disable-next-line no-unused-vars
     const maxY = testMax('vertical')
+    // eslint-disable-next-line no-unused-vars
     const maxXcount = Math.floor()
 
     for (let i = 0; i < openWindows + 1; i++) {
@@ -110,18 +121,19 @@ const moveElement = (elmnt, parentNode) => {
       console.log(`result: ${result}\ntest: ${test}\nopenWindows: ${openWindows}\ni: ${i}`)
       if (result.ok) return parentOffset + 10 * i
     }
+    return 0
   }
 
   /**
-   *
+   * The element's initial position.
    */
   const initialPosition = () => {
     const numbOpenApps = parent.childNodes.length
     const offsetPixelsTop = 10 * numbOpenApps
     const offsetPixelsLeft = 10 * numbOpenApps
 
-    const height = elmnt.offsetHeight
-    const width = elmnt.offsetWidth
+    // const height = elmnt.offsetHeight
+    // const width = elmnt.offsetWidth
     let offsetTop = parent.offsetTop + offsetPixelsTop
     let offsetLeft = parent.offsetLeft + offsetPixelsLeft
     // const position = testPosition({ height, width, offsetTop, offsetLeft })
@@ -129,8 +141,7 @@ const moveElement = (elmnt, parentNode) => {
     const maxY = testMax('vertical')
     const maxXcount = Math.floor(numbOpenApps / maxX)
     const maxYcount = Math.floor(numbOpenApps / maxY)
-    
-    
+
     offsetTop = parent.offsetTop + 10 * (numbOpenApps - maxYcount * maxY)
     offsetLeft = parent.offsetLeft + 10 * numbOpenApps
 

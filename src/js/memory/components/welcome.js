@@ -95,6 +95,8 @@ customElements.define('welcome-page',
    */
   class extends HTMLElement {
     /**
+     * The player's username.
+     *
      * @private
      * @type {string}
      */

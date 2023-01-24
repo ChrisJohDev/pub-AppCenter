@@ -1,5 +1,5 @@
 /**
- * The main script file of the application.
+ * The exchange app.
  *
  * @author Chris Johannesson <chris@chrisjohannesson.com>
  * @version 1.0.0
@@ -161,9 +161,10 @@ customElements.define('exchange-app',
   class extends HTMLElement {
     #currencyList
     /**
-     *
+     * Constructor function.
+     * Pre-loading the codes from server.
      */
-    constructor() {
+    constructor () {
       super()
 
       getCurrencyCodes()
@@ -176,9 +177,9 @@ customElements.define('exchange-app',
     }
 
     /**
-     *
+     * Sets up the element when it is added to the DOM.
      */
-    async connectedCallback() {
+    async connectedCallback () {
       const form = this.shadowRoot.querySelector('#queryType')
       const displayTypes = form.querySelectorAll('input[name="displayType"]')
       console.log('[exchangeApp] connectedCallback displayTypes:', displayTypes)
@@ -189,10 +190,11 @@ customElements.define('exchange-app',
     }
 
     /**
+     * Responds to changes in displayType from form id=queryType.
      *
-     * @param ev
+     * @param {Event} ev - information about which radio button that was selected.
      */
-    #checkChange(ev) {
+    #checkChange (ev) {
       // console.log('[exchangeApp] checkChange ev.target:', ev.target)
       if (ev.target) {
         if (ev.target.value === 'pair') {
@@ -201,26 +203,12 @@ customElements.define('exchange-app',
           this.#loadLatest()
         }
       }
-
-      // if (ev.originalTarget) { // Firefox
-      //   if (ev.originalTarget.value === 'pair') {
-      //     this.#loadPair()
-      //   } else {
-      //     this.#loadLatest()
-      //   }
-      // } else if (ev.path) { // Chrome
-      //   if (ev.path[0].value === 'pair') {
-      //     this.#loadPair()
-      //   } else {
-      //     this.#loadLatest()
-      //   }
-      // }
     }
 
     /**
-     *
+     * Loads the pair setup from the pairTemplate and injects that into the dataArea.
      */
-    async #loadPair() {
+    async #loadPair () {
       console.log('[exchangeApp] #loadPair currencyList:', this.#currencyList)
       this.style.height = '300px'
       const dataArea = this.shadowRoot.querySelector('#dataArea')
@@ -270,7 +258,6 @@ customElements.define('exchange-app',
           p.style.textAlign = 'center'
           p.style.marginTop = '1rem'
           p.innerHTML = `<span title='${base[1]}'>${base[0]}</span>/<span title='${quote[1]}'>${quote[0]}</span> - ${rate.rate}`
-
 
           // console.log('base:', selectBase)
           console.log('[exchangeApp] getPair rate:', rate)
@@ -350,9 +337,9 @@ customElements.define('exchange-app',
     }
 
     /**
-     *
+     * Loads the latest setup from the latestTemplate and injects that into the dataArea.
      */
-    async #loadLatest() {
+    async #loadLatest () {
       // console.log('#loadLatest', this.#currencyList)
       this.style.height = '480px'
       const dataArea = this.shadowRoot.querySelector('#dataArea')

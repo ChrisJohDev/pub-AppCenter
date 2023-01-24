@@ -96,7 +96,7 @@ customElements.define('game-board',
 
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
-      this.inData = {}
+      this.#inData = {}
       this.#flipCounter = 0
       this.#flippedCards = []
       this.#numberOfAttempts = 0
